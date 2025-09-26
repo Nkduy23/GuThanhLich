@@ -1,36 +1,22 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-
-interface Product {
-  _id: string;
-  name: string;
-  price: number;
-  image: string;
-  categoryId: { name: string };
-}
-
-interface Review {
-  _id: string;
-  user: string;
-  rate: number;
-  comment: string;
-}
+import type { Product, Review } from "../../types";
 
 const ProductDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const formatCurrency = (price: number) => `${price.toLocaleString("vi-VN")} VNĐ`; // Giả sử helper
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/products/${id}`)
+    fetch(`http://localhost:3000/api/products/${slug}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data.product);
         setReviews(data.reviews || []);
       })
       .catch((err) => console.error(err));
-  }, [id]);
+  }, [slug]);
 
   if (!product) return <div>Loading...</div>;
 

@@ -2,6 +2,10 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface ICategory extends Document {
   name: string;
+  slug: string;
+  type: string;
+  image: string;
+  description: string;
 }
 
 const CategorySchema: Schema = new Schema({

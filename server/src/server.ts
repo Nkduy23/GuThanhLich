@@ -2,9 +2,8 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
-import productRouter from "./routes/product.routes";
-import homeRouter from "./routes/home.routes";
 import footerData from "./middleware/footerData";
+import apiRouter from "./routes"; // chỉ cần import 1 file
 
 import "./models/index";
 
@@ -21,9 +20,14 @@ app.use(footerData);
 
 app.use(cors({ origin: "http://localhost:5173" }));
 
-// Routes
-app.use("/api", homeRouter);
-app.use("/api/products", productRouter);
+app.get("/", (req: Request, res: Response) => {
+  res.json({
+    message: "Welcome to my API 🚀",
+  });
+});
+
+app.use("/api", apiRouter);
+
 app.get("/api/footer", (req: Request, res: Response) => {
   res.json((req as any).footerData);
 });

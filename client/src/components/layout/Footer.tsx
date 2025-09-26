@@ -1,4 +1,4 @@
-import type { SocialLink, ContactInfo, LinkItem } from "../types";
+import type { SocialLink, ContactInfo, LinkItem } from "../../types";
 
 interface FooterProps {
   socialLinks: SocialLink[];
@@ -12,7 +12,7 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, policyLinks, paymentIcons, certifications }) => {
   return (
     <footer className="bg-gray-900 text-gray-300 py-16">
-      <div className="mx-auto max-w-6xl px-4 container">
+      <div className="mx-auto max-w-7xl px-4 container">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="flex flex-col space-y-8">

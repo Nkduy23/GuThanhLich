@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Footer from "./Footer";
-import type { SocialLink, ContactInfo, LinkItem } from "../types";
+import type { SocialLink, ContactInfo, LinkItem } from "../../types";
 
 const FooterContainer: React.FC = () => {
   const [footerData, setFooterData] = useState<{
