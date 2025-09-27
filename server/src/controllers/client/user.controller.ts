@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import User from "../models/User";
-import UserAddress from "../models/UserAddress";
+import User from "../../models/User";
+import UserAddress from "../../models/UserAddress";
 import jwt from "jsonwebtoken";
 
 export const getProfile = async (req: Request, res: Response) => {

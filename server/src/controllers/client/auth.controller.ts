@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import User from "../models/User";
+import User from "../../models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -10,7 +10,7 @@ export const login = async (req: Request, res: Response) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Email hoặc mật khẩu không đúng" });
     }
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: "1h" });
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET!, { expiresIn: "1h" });
     res.json({ success: true, token });
   } catch (error) {
     console.error("Login error:", error);
@@ -24,7 +24,13 @@ export const register = async (req: Request, res: Response) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "Email đã tồn tại" });
     const hashedPassWord = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, password: hashedPassWord, phone });
+    const user = new User({
+      name,
+      email,
+      password: hashedPassWord,
+      phone,
+      role: "user",
+    });
     await user.save();
     res.json({ success: true, message: "Đăng ký thành công" });
   } catch (error) {

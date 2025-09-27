@@ -7,7 +7,7 @@ import userRouter from "./user.routes";
 import commentRouter from "./comment.routes";
 import reviewRouter from "./review.routes";
 import brandRouter from "./brand.routers";
-import { Review } from "../models";
+import { Review } from "../../models";
 
 const router = Router();
 

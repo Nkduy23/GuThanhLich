@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import type { Category, Product } from "../../types";
+import type { Category, ProductPopulated } from "../../types";
 import useAuth from "../../hooks/useAuth";
 import CategoryCard from "../../components/home/CategoryCard";
 import CategorySection from "../../components/home/CategorySection";
 
 const Home: React.FC = () => {
   useAuth();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<ProductPopulated[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]); // chỉ cha
+  const [allCategories, setAllCategories] = useState<Category[]>([]); // tất cả
 
   useEffect(() => {
     // Fetch products
@@ -20,13 +21,16 @@ const Home: React.FC = () => {
     fetch("http://localhost:3000/api/categories")
       .then((res) => res.json())
       .then((data) => {
+        setAllCategories(data.categories); // giữ tất cả
         const mainCategories = data.categories.filter((cat: Category) => !cat.parentId);
-        setCategories(mainCategories);
+        setCategories(mainCategories); // chỉ cha
       })
       .catch((err) => console.error(err));
   }, []);
 
-  // Hàm lọc sản phẩm theo categoryId
+  // lọc isFeatured từ toàn bộ categories (cả cha + con)
+  const featuredCategories = allCategories.filter((cat) => cat.isFeatured).sort((a, b) => a.order - b.order);
+
   const getProductsByCategorySlug = (slug: string) => {
     return products.filter((product) => typeof product.categoryId === "object" && product.categoryId.slug === slug).slice(0, 10);
   };
@@ -51,9 +55,9 @@ const Home: React.FC = () => {
       </div>
 
       {/* Phần Sản Phẩm */}
-      <CategorySection title="Sản Phẩm Khuyến Mãi" products={getProductsByCategorySlug("khuyen-mai")} categorySlug="khuyen-mai" />
-      <CategorySection title="Trạm 1 | Thời Trang Thiết Yếu" description="Nền Tảng Phong Cách, Chất Lượng Vượt Thời Gian" products={getProductsByCategorySlug("gu")} categorySlug="tram-1" align="left" />
-      <CategorySection title="Áo" products={getProductsByCategorySlug("ao")} categorySlug="ao" />
+      {featuredCategories.map((cat) => (
+        <CategorySection key={cat._id.toString()} title={cat.title} description={cat.description} products={getProductsByCategorySlug(cat.slug)} categorySlug={cat.slug} align="left" />
+      ))}
     </>
   );
 };

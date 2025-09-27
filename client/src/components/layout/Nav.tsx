@@ -72,7 +72,6 @@ const Navigation = () => {
     for (let i = 0; i < subs.length; i += 4) {
       columns.push(subs.slice(i, i + 4));
     }
-    console.log(columns);
 
     return (
       <div className="absolute left-0 top-10 w-[800px] hidden group-hover:flex bg-white shadow-lg rounded-lg p-6 gap-6 flex-wrap z-20">

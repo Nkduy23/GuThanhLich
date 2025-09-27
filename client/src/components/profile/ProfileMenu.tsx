@@ -1,17 +1,33 @@
+import { useState } from "react";
+import { User, MapPin, Package, Settings, LogOut } from "lucide-react";
+
 const ProfileMenu: React.FC = () => {
+  const [active, setActive] = useState("info");
+
+  const menuItems = [
+    { key: "info", label: "Thông tin", icon: <User size={18} /> },
+    { key: "address", label: "Địa chỉ", icon: <MapPin size={18} /> },
+    { key: "orders", label: "Đơn hàng", icon: <Package size={18} /> },
+    { key: "settings", label: "Cài đặt", icon: <Settings size={18} /> },
+    { key: "logout", label: "Đăng xuất", icon: <LogOut size={18} /> },
+  ];
+
   return (
-    <nav className="w-64 p-4 bg-gray-100 rounded-lg shadow-lg h-full">
-      <h2 className="text-xl font-bold mb-6">Menu Cá Nhân</h2>
-      <ul className="space-y-4">
-        <li>
-          <button className="w-full text-left text-blue-600 hover:bg-blue-100 p-2 rounded transition duration-200">Thông tin</button>
-        </li>
-        <li>
-          <button className="w-full text-left text-blue-600 hover:bg-blue-100 p-2 rounded transition duration-200">Địa chỉ</button>
-        </li>
-        <li>
-          <button className="w-full text-left text-blue-600 hover:bg-blue-100 p-2 rounded transition duration-200">Đơn hàng</button>
-        </li>
+    <nav className="w-64 bg-white rounded-lg shadow-md p-4">
+      <h2 className="text-lg font-bold text-gray-700 mb-4">Menu Cá Nhân</h2>
+      <ul className="space-y-2">
+        {menuItems.map((item) => (
+          <li key={item.key}>
+            <button
+              onClick={() => setActive(item.key)}
+              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-lg transition 
+              ${active === item.key ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"}`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </button>
+          </li>
+        ))}
       </ul>
     </nav>
   );

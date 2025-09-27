@@ -17,7 +17,7 @@ const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, p
           {/* Brand Section */}
           <div className="flex flex-col space-y-8">
             <div className="space-y-4">
-              <h2 className="text-3xl font-bold text-white">Electro.</h2>
+              <h2 className="text-3xl font-bold text-white">GuThanhLich</h2>
               <p className="text-gray-400 text-sm leading-relaxed">Electro – Nền tảng mua sắm thiết bị điện tử tại Việt Nam, giúp người dân quốc.</p>
             </div>
             {/* Social Links */}

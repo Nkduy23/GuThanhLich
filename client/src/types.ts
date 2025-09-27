@@ -10,20 +10,54 @@ export interface Product {
   slug: string;
   price: number;
   image: string;
+  sale: number;
   description: string;
-  categoryId: string | CategoryRef;
   brandId: { $oid: string };
+  is_active: boolean;
+}
+
+export interface ProductPopulated extends Product {
+  categoryId: CategoryRef;
+}
+
+export interface Variant {
+  _id: string;
+  productId: string;
+  color: string;
+  sizes: { size: string; quantity: number }[];
+}
+
+export interface VariantImage {
+  variantId: string;
+  images: string[];
+}
+
+export interface Spec {
+  _id: string;
+  productId: string;
+  key: string;
+  value: string;
+}
+
+export interface Highlight {
+  _id: string;
+  productId: string;
+  title: string;
+  description: string;
 }
 
 export interface Category {
   _id: { $oid: string };
   name: string;
+  title: string;
   slug: string;
   type: string;
   image: string;
   description: string;
   parentId: { $oid: string } | null;
   parentSlug: string;
+  isFeatured: boolean;
+  order: number;
 }
 
 export interface Review {

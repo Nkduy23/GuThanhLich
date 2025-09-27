@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 interface LoginFormProps {
-  onSuccess: (token: string) => void;
+  onSuccess: (token: string, role: string) => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
@@ -24,7 +24,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       const data = await response.json();
 
       if (response.ok) {
-        onSuccess(data.token);
+        onSuccess(data.token, data.role);
       } else {
         setError(data.message || "Đăng nhập thất bại");
       }

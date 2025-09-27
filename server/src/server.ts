@@ -3,7 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
 import footerData from "./middleware/footerData";
-import apiRouter from "./routes"; // chỉ cần import 1 file
+import clientRouter from "./routes/client";
+import adminRouter from "./routes/admin";
 
 import "./models/index";
 
@@ -26,7 +27,8 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-app.use("/api", apiRouter);
+app.use("/api", clientRouter);
+app.use("/admin", adminRouter);
 
 app.get("/api/footer", (req: Request, res: Response) => {
   res.json((req as any).footerData);
