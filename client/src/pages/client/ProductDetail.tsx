@@ -18,32 +18,27 @@ const ProductDetail: React.FC = () => {
   const formatCurrency = (price: number) => `${price.toLocaleString("vi-VN")} VNĐ`;
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/products/${slug}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProduct(data.product);
-        setReviews(data.reviews || []);
-        setSpecs(data.specs || []);
-
-        // Gọi đúng API related mới
-        fetch(`http://localhost:3000/api/products/${slug}/related`)
-          .then((res) => res.json())
-          .then((related) => {
-            setRelatedProducts(related.related || []);
-          });
-      });
-
-    fetch(`http://localhost:3000/api/products/${slug}/variant`)
-      .then((res) => res.json())
-      .then((data) => setVariants(data));
-
-    fetch(`http://localhost:3000/api/products/${slug}/variant_image`)
-      .then((res) => res.json())
-      .then((data) => setVariantImages(data));
-
-    fetch(`http://localhost:3000/api/products/${slug}/highlight`)
-      .then((res) => res.json())
-      .then((data) => setHighlight(data.highlights));
+    const fetchData = async () => {
+      try {
+        const [productRes, variantsRes, variantImagesRes, highlightRes, relatedRes] = await Promise.all([
+          fetch(`http://localhost:3000/api/products/${slug}`).then((res) => res.json()),
+          fetch(`http://localhost:3000/api/products/${slug}/variant`).then((res) => res.json()),
+          fetch(`http://localhost:3000/api/products/${slug}/variant_image`).then((res) => res.json()),
+          fetch(`http://localhost:3000/api/products/${slug}/highlight`).then((res) => res.json()),
+          fetch(`http://localhost:3000/api/products/${slug}/related`).then((res) => res.json()),
+        ]);
+        setProduct(productRes.product);
+        setReviews(productRes.reviews || []);
+        setSpecs(productRes.specs || []);
+        setVariants(variantsRes || []);
+        setVariantImages(variantImagesRes || []);
+        setHighlight(highlightRes.highlights || []);
+        setRelatedProducts(relatedRes.related || []);
+      } catch (error) {
+        console.error("Error fetching product detail:", error);
+      }
+    };
+    if (slug) fetchData();
   }, [slug]);
 
   useEffect(() => {
@@ -79,7 +74,11 @@ const ProductDetail: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Bên trái: main image + thumbnails */}
         <div className="space-y-4">
-          <div className="aspect-square w-full bg-gray-100 rounded-lg overflow-hidden">{mainImage && <img src={mainImage} alt={product.name} className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />}</div>
+          <div className="aspect-square w-full bg-gray-100 rounded-lg overflow-hidden">
+            {mainImage && (
+              <img src={mainImage} alt={product.name} className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
+            )}
+          </div>
 
           {/* thumbnails */}
           {selectedVariant && variantImages.find((vi) => vi.variantId === selectedVariant._id)?.images && (
@@ -87,7 +86,13 @@ const ProductDetail: React.FC = () => {
               {variantImages
                 .find((vi) => vi.variantId === selectedVariant._id)
                 ?.images.map((img) => (
-                  <button key={img} onClick={() => setMainImage(img)} className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:border-blue-400 ${mainImage === img ? "border-blue-500 shadow-md" : "border-gray-200"}`}>
+                  <button
+                    key={img}
+                    onClick={() => setMainImage(img)}
+                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:border-blue-400 ${
+                      mainImage === img ? "border-blue-500 shadow-md" : "border-gray-200"
+                    }`}
+                  >
                     <img src={img} alt="thumb" className="w-full h-full object-cover" />
                   </button>
                 ))}
@@ -114,7 +119,13 @@ const ProductDetail: React.FC = () => {
                 .map((v) => {
                   const thumb = variantImages.find((vi) => vi.variantId === v._id)?.images[0];
                   return (
-                    <button key={v._id} className={`flex flex-col items-center border rounded-full overflow-hidden p-1 ${selectedVariant?._id === v._id ? "border-blue-500" : "border-gray-300"}`} onClick={() => handleChangeVariant(v._id)}>
+                    <button
+                      key={v._id}
+                      className={`flex flex-col items-center border rounded-full overflow-hidden p-1 ${
+                        selectedVariant?._id === v._id ? "border-blue-500" : "border-gray-300"
+                      }`}
+                      onClick={() => handleChangeVariant(v._id)}
+                    >
                       {thumb && <img src={thumb} alt={v.color} className="w-15 h-15 object-cover rounded" />}
                     </button>
                   );
@@ -128,7 +139,11 @@ const ProductDetail: React.FC = () => {
               <p className="font-semibold text-gray-900 mb-3">Kích thước:</p>
               <div className="flex gap-3 flex-wrap">
                 {selectedVariant.sizes.map((s) => (
-                  <button key={s.size} className="px-4 py-2 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 font-medium" disabled={s.quantity === 0}>
+                  <button
+                    key={s.size}
+                    className="px-4 py-2 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 font-medium"
+                    disabled={s.quantity === 0}
+                  >
                     <span className={s.quantity === 0 ? "text-gray-400" : "text-gray-900"}>{s.size}</span>
                     <span className="text-xs text-gray-500 ml-1">({s.quantity})</span>
                   </button>
@@ -142,17 +157,35 @@ const ProductDetail: React.FC = () => {
             <label htmlFor="quantity" className="block font-semibold text-gray-900 mb-3">
               Số lượng:
             </label>
-            <input type="number" id="quantity" name="quantity" min="1" max="5" defaultValue="1" className="w-24 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200" />
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              min="1"
+              max="5"
+              defaultValue="1"
+              className="w-24 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200"
+            />
           </div>
 
-          <button className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">Thêm Vào Giỏ Hàng</button>
+          <button className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+            Thêm Vào Giỏ Hàng
+          </button>
 
           {/* Thông số kỹ thuật - Collapsible */}
           {specs.length > 0 && (
             <div className="border border-gray-200 rounded-lg">
-              <button onClick={() => setIsSpecsExpanded(!isSpecsExpanded)} className="w-full px-4 py-3 flex items-center justify-between text-left font-semibold text-gray-900 hover:bg-gray-50 transition-colors duration-200">
+              <button
+                onClick={() => setIsSpecsExpanded(!isSpecsExpanded)}
+                className="w-full px-4 py-3 flex items-center justify-between text-left font-semibold text-gray-900 hover:bg-gray-50 transition-colors duration-200"
+              >
                 <span>Thông số kỹ thuật</span>
-                <svg className={`w-5 h-5 transform transition-transform duration-200 ${isSpecsExpanded ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className={`w-5 h-5 transform transition-transform duration-200 ${isSpecsExpanded ? "rotate-180" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -207,7 +240,12 @@ const ProductDetail: React.FC = () => {
                   <span className="font-semibold text-gray-900">{review.user}</span>
                   <div className="flex items-center gap-1">
                     {Array.from({ length: 5 }, (_, i) => (
-                      <svg key={i} className={`w-4 h-4 ${i < review.rate ? "text-yellow-400" : "text-gray-300"}`} fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        key={i}
+                        className={`w-4 h-4 ${i < review.rate ? "text-yellow-400" : "text-gray-300"}`}
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                     ))}
@@ -227,7 +265,11 @@ const ProductDetail: React.FC = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Sản phẩm liên quan</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {relatedProducts.map((rp) => (
-              <Link key={rp._id} to={`/product/${rp.slug}`} className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <Link
+                key={rp._id}
+                to={`/product/${rp.slug}`}
+                className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              >
                 <div className="aspect-square overflow-hidden">
                   <img src={rp.image} alt={rp.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>

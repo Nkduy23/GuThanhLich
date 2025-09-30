@@ -6,7 +6,7 @@ const MainLayout: React.FC = () => {
   return (
     <div className="font-sans bg-slate-50">
       <Header />
-      <main className="min-h-screen">
+      <main>
         <Outlet /> {/* tất cả route con sẽ hiển thị ở đây */}
       </main>
       <FooterContainer />

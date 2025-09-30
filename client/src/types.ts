@@ -47,17 +47,18 @@ export interface Highlight {
 }
 
 export interface Category {
-  _id: { $oid: string };
+  _id: string;
   name: string;
   title: string;
   slug: string;
-  type: string;
+  // type: string;
   image: string;
   description: string;
-  parentId: { $oid: string } | null;
-  parentSlug: string;
+  parentId?: string | null;
+  parentSlug?: string | null;
   isFeatured: boolean;
   order: number;
+  children: Category[];
 }
 
 export interface Review {

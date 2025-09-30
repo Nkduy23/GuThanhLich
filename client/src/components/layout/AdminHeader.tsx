@@ -1,19 +1,20 @@
 import { Bell, LogOut, User } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const AdminHeader: React.FC = () => {
-  return (
-    <header className="bg-white shadow-md px-6 py-3 flex items-center justify-between">
-      {/* Logo */}
-      <div className="flex items-center space-x-2">
-        <span className="text-2xl font-bold text-blue-600">AdminPanel</span>
-      </div>
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
-      {/* Thanh navigation */}
-      <nav className="flex items-center space-x-6">
-        <button className="text-gray-600 hover:text-blue-600 transition">Dashboard</button>
-        <button className="text-gray-600 hover:text-blue-600 transition">Users</button>
-        <button className="text-gray-600 hover:text-blue-600 transition">Products</button>
-      </nav>
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  return (
+    <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
+      {/* Page Title */}
+      <h1 className="text-lg font-semibold text-gray-800">Dashboard</h1>
 
       {/* User actions */}
       <div className="flex items-center space-x-4">
@@ -25,7 +26,7 @@ const AdminHeader: React.FC = () => {
           <User className="w-5 h-5" />
           <span>Admin</span>
         </button>
-        <button className="flex items-center space-x-1 text-red-500 hover:text-red-600">
+        <button onClick={handleLogout} className="flex items-center space-x-1 text-red-500 hover:text-red-600">
           <LogOut className="w-5 h-5" />
           <span>Logout</span>
         </button>

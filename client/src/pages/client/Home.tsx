@@ -11,21 +11,26 @@ const Home: React.FC = () => {
   const [allCategories, setAllCategories] = useState<Category[]>([]); // tất cả
 
   useEffect(() => {
-    // Fetch products
-    fetch("http://localhost:3000/api/products")
-      .then((res) => res.json())
-      .then((data) => setProducts(data.products))
-      .catch((err) => console.error(err));
+    const fetchData = async () => {
+      try {
+        const [productsRes, categoriesRes] = await Promise.all([
+          fetch("http://localhost:3000/api/products").then((res) => res.json()),
+          fetch("http://localhost:3000/api/categories").then((res) => res.json()),
+        ]);
 
-    // Fetch categories
-    fetch("http://localhost:3000/api/categories")
-      .then((res) => res.json())
-      .then((data) => {
-        setAllCategories(data.categories); // giữ tất cả
-        const mainCategories = data.categories.filter((cat: Category) => !cat.parentId);
-        setCategories(mainCategories); // chỉ cha
-      })
-      .catch((err) => console.error(err));
+        // Set products
+        setProducts(productsRes.products);
+
+        // Set categories
+        setAllCategories(categoriesRes.categories);
+        const mainCategories = categoriesRes.categories.filter((cat: Category) => !cat.parentId);
+        setCategories(mainCategories);
+      } catch (err) {
+        console.error("Error fetching products or categories:", err);
+      }
+    };
+
+    fetchData();
   }, []);
 
   // lọc isFeatured từ toàn bộ categories (cả cha + con)
@@ -48,7 +53,11 @@ const Home: React.FC = () => {
           ))}
         </div>
         <div className="text-center mt-8">
-          <button type="button" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition" onClick={() => (window.location.href = "/categories")}>
+          <button
+            type="button"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            onClick={() => (window.location.href = "/categories")}
+          >
             Xem thêm
           </button>
         </div>
@@ -56,7 +65,14 @@ const Home: React.FC = () => {
 
       {/* Phần Sản Phẩm */}
       {featuredCategories.map((cat) => (
-        <CategorySection key={cat._id.toString()} title={cat.title} description={cat.description} products={getProductsByCategorySlug(cat.slug)} categorySlug={cat.slug} align="left" />
+        <CategorySection
+          key={cat._id.toString()}
+          title={cat.title}
+          description={cat.description}
+          products={getProductsByCategorySlug(cat.slug)}
+          categorySlug={cat.slug}
+          align="left"
+        />
       ))}
     </>
   );

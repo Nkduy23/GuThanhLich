@@ -4,18 +4,21 @@ import ClientRoutes from "./routes/ClientRoutes";
 import AdminRoutes from "./routes/AdminRoutes";
 import ScrollToTop from "./components/common/ScrollToTop";
 import SkeletonLoader from "./components/common/SkeletonLoader";
+import { AuthProvider } from "./context/AuthContext";
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <ScrollToTop />
-      <Suspense fallback={<SkeletonLoader />}>
-        <Routes>
-          <Route path="/*" element={<ClientRoutes />} />
-          <Route path="/admin/*" element={<AdminRoutes />} />
-        </Routes>
-      </Suspense>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <ScrollToTop />
+        <Suspense fallback={<SkeletonLoader />}>
+          <Routes>
+            <Route path="/*" element={<ClientRoutes />} />
+            <Route path="/admin/*" element={<AdminRoutes />} />
+          </Routes>
+        </Suspense>
+      </Router>
+    </AuthProvider>
   );
 };
 

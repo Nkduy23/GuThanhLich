@@ -9,7 +9,7 @@ const ForgotPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-md mx-auto my-15 p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold text-center mb-6">Quên mật khẩu</h2>
       <ForgotForm onSuccess={handleForgotSuccess} />
     </div>
