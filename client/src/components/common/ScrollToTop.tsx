@@ -1,14 +1,35 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigationType } from "react-router-dom";
 
-const ScrollToTop = () => {
-  const { pathname } = useLocation();
+const ScrollManager = () => {
+  const location = useLocation();
+  const navigationType = useNavigationType();
 
   useEffect(() => {
+    if (navigationType === "POP") {
+      // back / forward
+      const savedY = sessionStorage.getItem(location.key);
+      if (savedY) {
+        window.scrollTo(0, parseInt(savedY, 10));
+        return;
+      }
+    }
+    // default scroll to top for new page
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [location, navigationType]);
+
+  useEffect(() => {
+    const saveScroll = () => {
+      sessionStorage.setItem(location.key, window.scrollY.toString());
+    };
+    window.addEventListener("beforeunload", saveScroll);
+    return () => {
+      saveScroll();
+      window.removeEventListener("beforeunload", saveScroll);
+    };
+  }, [location]);
 
   return null;
 };
 
-export default ScrollToTop;
+export default ScrollManager;

@@ -41,7 +41,10 @@ const Navigation = () => {
         if (subSubs.length > 0) {
           return (
             <div key={sub.slug} className="group/sub">
-              <a href={`/category/${sub.slug}`} className="flex items-center justify-between px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors">
+              <a
+                href={`/category/${sub.slug}`}
+                className="flex items-center justify-between px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors"
+              >
                 {sub.name}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 5L16 12L9 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -49,7 +52,11 @@ const Navigation = () => {
               </a>
               <div className="absolute left-full top-0 hidden w-40 rounded-lg bg-white text-black shadow-lg group-hover/sub:block z-30">
                 {subSubs.map((subSub) => (
-                  <a key={subSub.slug} href={`/category/${subSub.slug}`} className="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                  <a
+                    key={subSub.slug}
+                    href={`/category/${subSub.slug}`}
+                    className="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  >
                     {subSub.name}
                   </a>
                 ))}
@@ -109,22 +116,34 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="relative hidden md:flex flex-wrap gap-4 space-x-6 p-4">
+    <nav className="relative hidden md:flex flex-wrap gap-2 space-x-6 p-4">
       {mainCategories.map((mainCat) => {
         const subs = getSubCategories(mainCat.slug);
         const isMegaMenu = ["ao", "quan", "phu-kien"].includes(mainCat.slug); // Mega menu cho Áo, Quần, Phụ kiện
 
         return (
-          <div key={mainCat.slug} className={`group ${isMegaMenu ? "" : "relative"}`}>
-            <Link to={`/category/${mainCat.slug}`} className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors uppercase font-medium">
+          <div key={mainCat.slug} className={`group mr-2 ${isMegaMenu ? "" : "relative"}`}>
+            <Link
+              to={`/category/${mainCat.slug}`}
+              className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors uppercase font-medium"
+            >
               {mainCat.name}
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5.70711 9.71069C5.31658 10.1012 5.31658 10.7344 5.70711 11.1249L10.5993 16.0123C11.3805 16.7927 12.6463 16.7924 13.4271 16.0117L18.3174 11.1213C18.708 10.7308 18.708 10.0976 18.3174 9.70708C17.9269 9.31655 17.2937 9.31655 16.9032 9.70708L12.7176 13.8927C12.3271 14.2833 11.6939 14.2832 11.3034 13.8927L7.12132 9.71069C6.7308 9.32016 6.09763 9.32016 5.70711 9.71069Z" fill="currentColor" />
+                <path
+                  d="M5.70711 9.71069C5.31658 10.1012 5.31658 10.7344 5.70711 11.1249L10.5993 16.0123C11.3805 16.7927 12.6463 16.7924 13.4271 16.0117L18.3174 11.1213C18.708 10.7308 18.708 10.0976 18.3174 9.70708C17.9269 9.31655 17.2937 9.31655 16.9032 9.70708L12.7176 13.8927C12.3271 14.2833 11.6939 14.2832 11.3034 13.8927L7.12132 9.71069C6.7308 9.32016 6.09763 9.32016 5.70711 9.71069Z"
+                  fill="currentColor"
+                />
               </svg>
             </Link>
 
             {/* Dropdown/Submenu */}
-            {!isMegaMenu ? <div className="absolute left-0 top-6 hidden w-48 rounded-lg bg-white text-black shadow-lg group-hover:block z-20">{renderSubMenu(subs, mainCat.slug)}</div> : renderMegaMenu(mainCat.slug, subs)}
+            {!isMegaMenu ? (
+              <div className="absolute left-0 top-6 hidden w-48 rounded-lg bg-white text-black shadow-lg group-hover:block z-20">
+                {renderSubMenu(subs, mainCat.slug)}
+              </div>
+            ) : (
+              renderMegaMenu(mainCat.slug, subs)
+            )}
           </div>
         );
       })}

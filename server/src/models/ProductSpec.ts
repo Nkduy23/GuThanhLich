@@ -12,4 +12,4 @@ const ProductsSpecSchema: Schema = new Schema({
   value: { type: String, required: true },
 });
 
-export default mongoose.model<IProduct_spec>("product_specs", ProductsSpecSchema);
+export default mongoose.model<IProduct_spec>("ProductSpec", ProductsSpecSchema);

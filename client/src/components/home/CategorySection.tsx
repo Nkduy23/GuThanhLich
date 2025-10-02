@@ -12,7 +12,7 @@ interface CategorySectionProps {
 
 const CategorySection: React.FC<CategorySectionProps> = ({ title, description, products, categorySlug, align = "center" }) => {
   return (
-    <div className="category mb-12 mx-auto max-w-7xl px-4 container">
+    <div className="category mb-12 mx-auto max-w-6xl px-4 container">
       <div className={`text-${align} mb-8`}>
         <h2 className="text-3xl font-semibold uppercase mb-2 mt-8">{title}</h2>
         {description && <p className="text-gray-600">{description}</p>}

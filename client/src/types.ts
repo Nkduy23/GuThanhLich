@@ -4,6 +4,13 @@ export interface CategoryRef {
   name: string;
 }
 
+export interface ProductVariant {
+  _id: string;
+  color: string;
+  colorNameVi: string;
+  images: string[];
+}
+
 export interface Product {
   _id: string;
   name: string;
@@ -12,11 +19,13 @@ export interface Product {
   image: string;
   sale: number;
   description: string;
-  brandId: { $oid: string };
   is_active: boolean;
+  defaultVariantId?: ProductVariant;
 }
 
 export interface ProductPopulated extends Product {
+  tags: string;
+  categorySlug: string;
   categoryId: CategoryRef;
 }
 
@@ -25,13 +34,8 @@ export interface Variant {
   productId: string;
   color: string;
   sizes: { size: string; quantity: number }[];
-}
-
-export interface VariantImage {
-  variantId: string;
   images: string[];
 }
-
 export interface Spec {
   _id: string;
   productId: string;
@@ -44,6 +48,13 @@ export interface Highlight {
   productId: string;
   title: string;
   description: string;
+}
+
+export interface Review {
+  _id: string;
+  user: string;
+  rate: number;
+  comment: string;
 }
 
 export interface Category {
@@ -59,13 +70,6 @@ export interface Category {
   isFeatured: boolean;
   order: number;
   children: Category[];
-}
-
-export interface Review {
-  _id: string;
-  user: string;
-  rate: number;
-  comment: string;
 }
 
 export interface User {

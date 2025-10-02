@@ -10,6 +10,7 @@ export interface IProduct extends Document {
   categorySlug: string;
   categoryId: mongoose.Types.ObjectId;
   is_active: boolean;
+  defaultVariantId: mongoose.Types.ObjectId;
 }
 
 const ProductsSchema: Schema = new Schema({
@@ -21,6 +22,31 @@ const ProductsSchema: Schema = new Schema({
   description: { type: String, required: true },
   categoryId: { type: Schema.Types.ObjectId, ref: "Category", required: true },
   is_active: { type: Boolean },
+  defaultVariantId: { type: Schema.Types.ObjectId, ref: "ProductVariant", default: null },
+});
+
+ProductsSchema.virtual("productSpecs", {
+  ref: "ProductSpec",
+  localField: "_id",
+  foreignField: "productId",
+});
+
+ProductsSchema.virtual("reviews", {
+  ref: "Review",
+  localField: "_id",
+  foreignField: "productId",
+});
+
+ProductsSchema.virtual("productVariants", {
+  ref: "ProductVariant",
+  localField: "_id",
+  foreignField: "productId",
+});
+
+ProductsSchema.virtual("productHighlights", {
+  ref: "ProductHighlight",
+  localField: "_id",
+  foreignField: "productId",
 });
 
 export default mongoose.model<IProduct>("Product", ProductsSchema);

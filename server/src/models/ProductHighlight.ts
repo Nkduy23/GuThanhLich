@@ -12,4 +12,4 @@ const ProductsHighlightSchema: Schema = new Schema({
   description: { type: String, required: true },
 });
 
-export default mongoose.model<IProduct_highlight>("product_highlights", ProductsHighlightSchema);
+export default mongoose.model<IProduct_highlight>("ProductHighlight", ProductsHighlightSchema);

@@ -19,7 +19,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products }) => {
 
   return (
     <div className="relative">
-      <div ref={carouseRef} className="flex overflow-x-auto pb-4 scrollbar-hide scroll-smooth space-x-6 pr-6">
+      <div ref={carouseRef} className="flex overflow-x-auto pb-4 scrollbar-hide scroll-smooth space-x-6 ">
         {products.map((product) => (
           <div
             key={product._id}

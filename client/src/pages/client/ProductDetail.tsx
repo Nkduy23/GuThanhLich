@@ -1,12 +1,11 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import type { ProductPopulated, Variant, VariantImage, Highlight, Review, Spec } from "../../types";
+import type { ProductPopulated, Variant, Highlight, Review, Spec } from "../../types";
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<ProductPopulated | null>(null);
   const [variants, setVariants] = useState<Variant[]>([]);
-  const [variantImages, setVariantImages] = useState<VariantImage[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [highlight, setHighlight] = useState<Highlight[]>([]);
   const [mainImage, setMainImage] = useState<string>("");
@@ -20,19 +19,15 @@ const ProductDetail: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productRes, variantsRes, variantImagesRes, highlightRes, relatedRes] = await Promise.all([
+        const [productRes, relatedRes] = await Promise.all([
           fetch(`http://localhost:3000/api/products/${slug}`).then((res) => res.json()),
-          fetch(`http://localhost:3000/api/products/${slug}/variant`).then((res) => res.json()),
-          fetch(`http://localhost:3000/api/products/${slug}/variant_image`).then((res) => res.json()),
-          fetch(`http://localhost:3000/api/products/${slug}/highlight`).then((res) => res.json()),
           fetch(`http://localhost:3000/api/products/${slug}/related`).then((res) => res.json()),
         ]);
         setProduct(productRes.product);
-        setReviews(productRes.reviews || []);
-        setSpecs(productRes.specs || []);
-        setVariants(variantsRes || []);
-        setVariantImages(variantImagesRes || []);
-        setHighlight(highlightRes.highlights || []);
+        setVariants(productRes.product.productVariants || []);
+        setHighlight(productRes.product.productHighlights || []);
+        setReviews(productRes.product.reviews || []);
+        setSpecs(productRes.product.productSpecs || []);
         setRelatedProducts(relatedRes.related || []);
       } catch (error) {
         console.error("Error fetching product detail:", error);
@@ -46,11 +41,12 @@ const ProductDetail: React.FC = () => {
       const v = variants.find((v) => v.productId === product._id);
       if (v) {
         setSelectedVariant(v);
-        const imgs = variantImages.find((vi) => vi.variantId === v._id);
-        if (imgs) setMainImage(imgs.images[0]);
+        if (v.images && v.images.length > 0) {
+          setMainImage(v.images[0]);
+        }
       }
     }
-  }, [product, variants, variantImages]);
+  }, [product, variants]);
 
   if (!product)
     return (
@@ -62,14 +58,13 @@ const ProductDetail: React.FC = () => {
   const handleChangeVariant = (variantId: string) => {
     const v = variants.find((v) => v._id === variantId) || null;
     setSelectedVariant(v);
-    if (v) {
-      const imgs = variantImages.find((vi) => vi.variantId === v._id);
-      if (imgs) setMainImage(imgs.images[0]);
+    if (v && v.images && v.images.length > 0) {
+      setMainImage(v.images[0]);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Phần trên: ảnh và thông tin */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Bên trái: main image + thumbnails */}
@@ -81,21 +76,19 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* thumbnails */}
-          {selectedVariant && variantImages.find((vi) => vi.variantId === selectedVariant._id)?.images && (
-            <div className="flex gap-2 flex-wrap">
-              {variantImages
-                .find((vi) => vi.variantId === selectedVariant._id)
-                ?.images.map((img) => (
-                  <button
-                    key={img}
-                    onClick={() => setMainImage(img)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:border-blue-400 ${
-                      mainImage === img ? "border-blue-500 shadow-md" : "border-gray-200"
-                    }`}
-                  >
-                    <img src={img} alt="thumb" className="w-full h-full object-cover" />
-                  </button>
-                ))}
+          {selectedVariant?.images && selectedVariant.images.length > 0 && (
+            <div className="grid grid-cols-5 gap-1">
+              {selectedVariant.images.map((img) => (
+                <button
+                  key={img}
+                  onClick={() => setMainImage(img)}
+                  className={`w-25 h-25 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:border-blue-400 ${
+                    mainImage === img ? "border-blue-500 shadow-md" : "border-gray-200"
+                  }`}
+                >
+                  <img src={img} alt="thumb" className="w-full h-full object-cover" />
+                </button>
+              ))}
             </div>
           )}
         </div>
@@ -116,20 +109,18 @@ const ProductDetail: React.FC = () => {
             <div className="flex gap-2 flex-wrap">
               {variants
                 .filter((v) => v.productId === product._id)
-                .map((v) => {
-                  const thumb = variantImages.find((vi) => vi.variantId === v._id)?.images[0];
-                  return (
-                    <button
-                      key={v._id}
-                      className={`flex flex-col items-center border rounded-full overflow-hidden p-1 ${
-                        selectedVariant?._id === v._id ? "border-blue-500" : "border-gray-300"
-                      }`}
-                      onClick={() => handleChangeVariant(v._id)}
-                    >
-                      {thumb && <img src={thumb} alt={v.color} className="w-15 h-15 object-cover rounded" />}
-                    </button>
-                  );
-                })}
+                .map((v) => (
+                  <button
+                    key={v._id}
+                    className={`flex flex-col items-center border rounded-full overflow-hidden p-1 ${
+                      selectedVariant?._id === v._id ? "border-blue-500" : "border-gray-300"
+                    }`}
+                    onClick={() => handleChangeVariant(v._id)}
+                  >
+                    {v.images && v.images[0] && <img src={v.images[0]} alt={v.color} className="w-15 h-15 object-cover rounded" />}
+                    <span className="text-sm mt-1">{v.color}</span>
+                  </button>
+                ))}
             </div>
           </div>
 
@@ -210,9 +201,7 @@ const ProductDetail: React.FC = () => {
               <h2 className="text-xl font-bold text-gray-900 mb-4">Đặc điểm nổi bật</h2>
               <div className="space-y-4">
                 {highlight.map((h, index) => {
-                  const images = variantImages.find((vi) => vi.variantId === selectedVariant._id)?.images || [];
-                  const img = images[index] || images[0];
-
+                  const img = selectedVariant.images[index] || selectedVariant.images[0];
                   return (
                     <div key={h._id} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                       {img && <img src={img} alt={h.title} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />}
@@ -267,14 +256,20 @@ const ProductDetail: React.FC = () => {
             {relatedProducts.map((rp) => (
               <Link
                 key={rp._id}
-                to={`/product/${rp.slug}`}
+                to={`/products/${rp.slug}`}
                 className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
               >
                 <div className="aspect-square overflow-hidden">
-                  <img src={rp.image} alt={rp.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <img
+                    src={rp.defaultVariantId?.images?.[0] || rp.image}
+                    alt={rp.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                 </div>
                 <div className="p-4">
-                  <p className="font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors duration-200">{rp.name}</p>
+                  <p className="font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+                    {rp.name} - {rp.defaultVariantId?.colorNameVi}
+                  </p>
                   <p className="text-lg font-bold text-red-600">{formatCurrency(rp.price)}</p>
                 </div>
               </Link>

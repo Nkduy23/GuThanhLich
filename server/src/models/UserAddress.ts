@@ -14,4 +14,4 @@ const UserAddressSchema: Schema = new Schema({
   country: { type: String, required: true },
 });
 
-export default mongoose.model<IUserAddress>("User_Address", UserAddressSchema);
+export default mongoose.model<IUserAddress>("UserAddress", UserAddressSchema);

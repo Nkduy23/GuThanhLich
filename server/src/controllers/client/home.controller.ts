@@ -1,13 +1,18 @@
 import { Response, Request } from "express";
 import Category from "../../models/Category";
+import Product from "../../models/Product";
 
 export const renderHome = async (req: Request, res: Response): Promise<void> => {
   try {
     const categories = await Category.find({ isFeatured: true })
       .select("name title description slug image")
       .populate({
-        path: "products", // virtual field
-        select: "name slug price image sale",
+        path: "products",
+        select: "name slug tags price image sale defaultVariantId",
+        populate: {
+          path: "defaultVariantId",
+          select: "color colorNameVi images",
+        },
       })
       .lean();
 

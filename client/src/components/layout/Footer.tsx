@@ -12,7 +12,7 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, policyLinks, paymentIcons, certifications }) => {
   return (
     <footer className="bg-gray-900 text-gray-300 py-16">
-      <div className="mx-auto max-w-7xl px-4 container">
+      <div className="mx-auto max-w-6xl px-4 container">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="flex flex-col space-y-8">
@@ -25,7 +25,11 @@ const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, p
               <h3 className="text-base font-bold uppercase text-white">KẾT NỐI VỀ ELECTRO</h3>
               <div className="flex items-center gap-2">
                 {socialLinks.map((link) => (
-                  <a key={link.name} href={link.href} className="flex items-center justify-center w-9 h-9 rounded-full transition-colors duration-300 hover:text-blue-400 hover:no-underline">
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="flex items-center justify-center w-9 h-9 rounded-full transition-colors duration-300 hover:text-blue-400 hover:no-underline"
+                  >
                     <img src={`/icons/${link.icon}`} alt={link.name} className="w-5 h-5" />
                   </a>
                 ))}
@@ -48,7 +52,10 @@ const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, p
             <ul className="space-y-2">
               {aboutLinks.map((link, index) => (
                 <li key={index}>
-                  <a href={link.href} className="block text-gray-400 text-sm leading-tight transition-colors duration-300 hover:text-blue-400 hover:no-underline">
+                  <a
+                    href={link.href}
+                    className="block text-gray-400 text-sm leading-tight transition-colors duration-300 hover:text-blue-400 hover:no-underline"
+                  >
                     {link.text}
                   </a>
                 </li>
@@ -61,7 +68,10 @@ const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, p
             <ul className="space-y-2">
               {policyLinks.map((link, index) => (
                 <li key={index}>
-                  <a href={link.href} className="block text-gray-400 text-sm leading-tight transition-colors duration-300 hover:text-blue-400 hover:no-underline">
+                  <a
+                    href={link.href}
+                    className="block text-gray-400 text-sm leading-tight transition-colors duration-300 hover:text-blue-400 hover:no-underline"
+                  >
                     {link.text}
                   </a>
                 </li>
@@ -94,7 +104,9 @@ const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, p
             <div className="flex-1 space-y-2">
               <p className="font-bold text-white text-xs">© Bản quyền thuộc về Electro</p>
               <p className="font-medium text-white text-xs">Công ty TNHH Electro Việt Nam</p>
-              <p className="text-gray-400 text-xs leading-tight">Giấy chứng nhận đăng ký kinh doanh số: 0315667679 do Sở Kế hoạch & Đầu tư TP.HCM cấp ngày 22/08/2025</p>
+              <p className="text-gray-400 text-xs leading-tight">
+                Giấy chứng nhận đăng ký kinh doanh số: 0315667679 do Sở Kế hoạch & Đầu tư TP.HCM cấp ngày 22/08/2025
+              </p>
               <p className="text-gray-400 text-xs">Góp ý & khiếu nại: ceo@electro.com</p>
               <p className="text-gray-400 text-xs">Hotline: 1900 6777</p>
               <p className="text-gray-400 text-xs">Địa chỉ tại số: 50/22 Gò Dầu, Phường Tân Quý, Quận Tân Phú, TP. Hồ Chí Minh</p>
