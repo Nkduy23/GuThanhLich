@@ -1,0 +1,16 @@
+[
+  {
+    "_id": { "$oid": "64f080c1a1e1a10000000001" },
+    "orderId": { "$oid": "64f070c1a1e1a10000000001" },
+    "productId": { "$oid": "64f001c1a1e1a10000000001" },
+    "quantity": 2,
+    "price": 1200000
+  },
+  {
+    "_id": { "$oid": "64f080c1a1e1a10000000002" },
+    "orderId": { "$oid": "64f070c1a1e1a10000000001" },
+    "productId": { "$oid": "64f001c1a1e1a10000000003" },
+    "quantity": 1,
+    "price": 399000
+  }
+]

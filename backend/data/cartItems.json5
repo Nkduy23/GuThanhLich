@@ -1,0 +1,7 @@
+[
+  {
+    "userId": { "$oid": "64f010c1a1e1a10000000001" },
+    "status": "active",
+    "quantity": 2
+  }
+]

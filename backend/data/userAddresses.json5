@@ -1,0 +1,16 @@
+[
+  {
+    "_id": { "$oid": "64f020c1a1e1a10000000001" },
+    "userId": { "$oid": "64f010c1a1e1a10000000001" },
+    "address": "123 Nguyen Trai, Q1, HCMC",
+    "city": "HCMC",
+    "country": "Vietnam"
+  },
+  {
+    "_id": { "$oid": "64f020c1a1e1a10000000002" },
+    "userId": { "$oid": "64f010c1a1e1a10000000002" },
+    "address": "456 Le Loi, Q3, HCMC",
+    "city": "HCMC",
+    "country": "Vietnam"
+  }
+]
