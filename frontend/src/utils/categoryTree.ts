@@ -1,7 +1,7 @@
 import type { Category } from "../types";
 
 export function buildCategoryTree(categories: Category[]): Category[] {
-  const blacklist = ["khuyen-mai", "new"];
+  const blacklist = ["khuyen-mai", "new", "gu"];
 
   // B1: loại bỏ toàn bộ cha blacklist và con cháu của nó
   const isDescendantOf = (cat: Category, all: Category[]): boolean => {
@@ -11,7 +11,9 @@ export function buildCategoryTree(categories: Category[]): Category[] {
     return parent ? isDescendantOf(parent, all) : false;
   };
 
-  const filtered = categories.filter((c) => !blacklist.includes(c.slug) && !isDescendantOf(c, categories));
+  const filtered = categories.filter(
+    (c) => !blacklist.includes(c.slug) && !isDescendantOf(c, categories)
+  );
 
   // B2: build tree từ filtered
   const map: Record<string, Category> = {};

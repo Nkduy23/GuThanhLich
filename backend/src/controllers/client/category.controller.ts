@@ -1,11 +1,36 @@
 import { Response, Request } from "express";
-import Category from "../../models/Category";
+import { getParentCategoryData } from "../../services/client/home.service";
+import { getNavCategory, getCategoryBySlug } from "../../services/client/category.service";
 
-export const getCategory = async (req: Request, res: Response): Promise<void> => {
+export const renderCategories = async (req: Request, res: Response) => {
   try {
-    const categories = await Category.find().lean();
-    res.json({ success: true, categories });
+    const data = await getNavCategory();
+    res.json({ success: true, categories: data });
   } catch (error) {
-    res.status(500).send("Lỗi khi lấy danh sách loại sản phẩm");
+    console.error("Error render Categories", error);
+
+    res.status(500).send("Lỗi khi lấy dữ liệu Category");
+  }
+};
+
+export const renderParentCategories = async (req: Request, res: Response) => {
+  try {
+    const data = await getParentCategoryData();
+    res.json({ success: true, categories: data });
+  } catch (error) {
+    console.error("Error render Parent Categories", error);
+
+    res.status(500).send("Lỗi khi lấy dữ liệu cha của categories");
+  }
+};
+
+export const renderCategory = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const data = await getCategoryBySlug(slug);
+    res.json({ success: true, category: data });
+  } catch (error) {
+    console.error("Error render Category", error);
+    res.status(500).send("Lỗi khi lấy dữ liệu Category");
   }
 };

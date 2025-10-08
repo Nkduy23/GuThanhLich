@@ -5,7 +5,6 @@ export interface ICategory extends Document {
   title?: string;
   description?: string;
   slug: string;
-  type?: string;
   image?: string;
   parentId?: Types.ObjectId | null;
   parentSlug?: string | null;
@@ -21,14 +20,13 @@ const CategorySchema: Schema = new Schema(
     title: String,
     description: String,
     slug: { type: String, required: true, unique: true },
-    type: String,
     image: String,
     parentId: { type: Schema.Types.ObjectId, ref: "Category", default: null },
     parentSlug: { type: String, default: null },
     isFeatured: { type: Boolean, default: false },
     order: { type: Number, default: 0 },
   },
-  { timestamps: true } // thêm createdAt, updatedAt
+  { timestamps: true }
 );
 
 export default mongoose.model<ICategory>("Category", CategorySchema);

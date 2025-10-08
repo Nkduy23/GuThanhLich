@@ -75,8 +75,9 @@ export interface Category {
   parentSlug?: string | null;
   isFeatured: boolean;
   order: number;
+  productCount: number;
   children: Category[];
-  products: Product[];
+  products?: Product[];
 }
 
 export interface User {

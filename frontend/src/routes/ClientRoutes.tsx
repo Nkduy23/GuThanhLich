@@ -2,17 +2,18 @@ import { Route, Routes } from "react-router-dom";
 import { lazy } from "react";
 import MainLayout from "../layouts/MainLayout";
 import ProtectedRoute from "./ProtectedRoute";
-import NotFoundPage from "../pages/client/NotFoundPage";
+import NotFoundPage from "../client/pages/NotFoundPage";
 
-const Slider = lazy(() => import("../components/common/Slider"));
-const Home = lazy(() => import("../pages/client/Home"));
-const ProductDetail = lazy(() => import("../pages/client/ProductDetail"));
-const Checkout = lazy(() => import("../pages/client/CheckoutPage"));
-const LoginPage = lazy(() => import("../pages/client/LoginPage"));
-const RegisterPage = lazy(() => import("../pages/client/RegisterPage"));
-const ForgotPage = lazy(() => import("../pages/client/ForgotPage"));
-const ProfilePage = lazy(() => import("../pages/client/ProfilePage"));
-const CartPage = lazy(() => import("../pages/client/CartPage"));
+const Slider = lazy(() => import("../client/components/common/Slider"));
+const Home = lazy(() => import("../client/pages/Home"));
+const CategoryPage = lazy(() => import("../client/pages/CategoryPage"));
+const ProductDetail = lazy(() => import("../client/pages/ProductDetail"));
+const Checkout = lazy(() => import("../client/pages/CheckoutPage"));
+const LoginPage = lazy(() => import("../client/pages/LoginPage"));
+const RegisterPage = lazy(() => import("../client/pages/RegisterPage"));
+const ForgotPage = lazy(() => import("../client/pages/ForgotPage"));
+const ProfilePage = lazy(() => import("../client/pages/ProfilePage"));
+const CartPage = lazy(() => import("../client/pages/CartPage"));
 
 const ClientRoutes: React.FC = () => {
   return (
@@ -27,6 +28,7 @@ const ClientRoutes: React.FC = () => {
             </>
           }
         />
+        <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/products/:slug" element={<ProductDetail />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/login" element={<LoginPage />} />

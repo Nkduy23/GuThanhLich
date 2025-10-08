@@ -117,6 +117,7 @@
     name: "Quần Short Thun Ombre 7 Inch No Style M88",
     price: 1299000,
     sale: 6,
+    is_new: true,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "quan",
     brandSlug: "nike",

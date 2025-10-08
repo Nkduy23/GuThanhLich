@@ -1,6 +1,6 @@
 import { Outlet, NavLink } from "react-router-dom";
-import AdminHeader from "../components/layout/AdminHeader";
-import AdminFooter from "../components/layout/AdminFooter";
+import AdminHeader from "../client/layout/AdminHeader";
+import AdminFooter from "../client/layout/AdminFooter";
 import { Home, Users, Package } from "lucide-react";
 
 const AdminLayout: React.FC = () => {
@@ -20,7 +20,9 @@ const AdminLayout: React.FC = () => {
             end
             className={({ isActive }) =>
               `w-full flex items-center px-6 py-3 rounded-md transition ${
-                isActive ? "bg-blue-100 text-blue-600" : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
+                isActive
+                  ? "bg-blue-100 text-blue-600"
+                  : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
               }`
             }
           >
@@ -32,7 +34,9 @@ const AdminLayout: React.FC = () => {
             to="/admin/users"
             className={({ isActive }) =>
               `w-full flex items-center px-6 py-3 rounded-md transition ${
-                isActive ? "bg-blue-100 text-blue-600" : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
+                isActive
+                  ? "bg-blue-100 text-blue-600"
+                  : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
               }`
             }
           >
@@ -44,7 +48,9 @@ const AdminLayout: React.FC = () => {
             to="/admin/products"
             className={({ isActive }) =>
               `w-full flex items-center px-6 py-3 rounded-md transition ${
-                isActive ? "bg-blue-100 text-blue-600" : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
+                isActive
+                  ? "bg-blue-100 text-blue-600"
+                  : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
               }`
             }
           >
@@ -56,7 +62,9 @@ const AdminLayout: React.FC = () => {
             to="/admin/categories"
             className={({ isActive }) =>
               `w-full flex items-center px-6 py-3 rounded-md transition ${
-                isActive ? "bg-blue-100 text-blue-600" : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
+                isActive
+                  ? "bg-blue-100 text-blue-600"
+                  : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
               }`
             }
           >

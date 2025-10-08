@@ -3,10 +3,11 @@ import AdminLayout from "../layouts/AdminLayout";
 import ProtectedAdminRoute from "./ProtectedAdminRoute";
 import { lazy } from "react";
 
-const DashboardPage = lazy(() => import("../pages/admin/Dashboard"));
-const UsersPage = lazy(() => import("../pages/admin/Users"));
-const ProductsPage = lazy(() => import("../pages/admin/Products"));
-const CategoriesPage = lazy(() => import("../pages/admin/Categories"));
+const DashboardPage = lazy(() => import("../admin/pages/Dashboard"));
+const UsersPage = lazy(() => import("../admin/pages/Users"));
+const ProductsPage = lazy(() => import("../admin/pages/Products"));
+const CategoriesPage = lazy(() => import("../admin/pages/categories/Categories"));
+const CategoryFormPage = lazy(() => import("../admin/pages/categories/CategoryForm"));
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -18,6 +19,8 @@ const AdminRoutes: React.FC = () => {
           <Route path="users" element={<UsersPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="categories" element={<CategoriesPage />}></Route>
+          <Route path="categories/create" element={<CategoryFormPage />} />
+          <Route path="categories/edit/:id" element={<CategoryFormPage />} />
         </Route>
       </Route>
     </Routes>
