@@ -1,18 +1,11 @@
-// routes/ProtectedAdminRoute.tsx
 import { Navigate, Outlet } from "react-router-dom";
-import { isTokenExpired } from "../utils/auth";
+import { useAuth } from "../client/context/AuthContext";
 
 const ProtectedAdminRoute: React.FC = () => {
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role"); // ví dụ bạn lưu role khi login
+  const { isAuthenticated, role } = useAuth();
 
-  if (!token || isTokenExpired(token)) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (role !== "admin") {
-    return <Navigate to="/" replace />; // user thường vào admin thì đá về Home
-  }
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (role !== "admin") return <Navigate to="/" replace />;
 
   return <Outlet />;
 };

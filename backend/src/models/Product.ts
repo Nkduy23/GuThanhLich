@@ -4,13 +4,15 @@ export interface IProduct extends Document {
   name: string;
   slug: string;
   price: number;
-  image: string;
   sale: number;
   is_new: boolean;
-  tags: string;
+  tags: string[];
   description: string;
   categorySlug: string;
+  productVariants: [];
+  brandSlug: string;
   categoryId: mongoose.Types.ObjectId;
+  brandId: mongoose.Types.ObjectId;
   is_active: boolean;
   defaultVariantId: mongoose.Types.ObjectId;
 }
@@ -19,12 +21,14 @@ const ProductsSchema: Schema = new Schema({
   name: { type: String, required: true },
   slug: { type: String, required: true },
   price: { type: Number, required: true },
-  image: { type: String, required: true },
   sale: { type: Number, required: true },
   is_new: { type: Boolean, required: true },
-  tags: { type: String, required: true },
+  tags: { type: [String], default: [] },
+  categorySlug: { type: String, required: true },
+  brandSlug: { type: String, required: true },
   description: { type: String, required: true },
   categoryId: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+  brandId: { type: Schema.Types.ObjectId, ref: "Brand", required: true },
   is_active: { type: Boolean },
   defaultVariantId: { type: Schema.Types.ObjectId, ref: "ProductVariant", default: null },
 });

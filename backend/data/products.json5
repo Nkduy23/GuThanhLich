@@ -13,7 +13,6 @@
   {
     name: "Áo Thun Tay Ngắn Waffle Thoáng Khí Seventy Seven 10",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "ao",
     brandSlug: "nike",
@@ -23,7 +22,6 @@
   {
     name: "Áo Thun Cotton Line Art Co Giãn Seventy Seven 04",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "ao",
     brandSlug: "nike",
@@ -33,7 +31,6 @@
   {
     name: "Áo Thun Thể Thao Ultra Thin The Beginner 001",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "ao",
     brandSlug: "nike",
@@ -53,7 +50,6 @@
   {
     name: "Áo Thun Waffle Line Art Co Giãn Seventy Seven 46",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "ao",
     brandSlug: "nike",
@@ -63,7 +59,6 @@
   {
     name: "Áo Thun Waffle Co Giãn Seventy Seven 41",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "ao",
     brandSlug: "nike",
@@ -73,7 +68,6 @@
   {
     name: "Áo Thun Thể Thao Ultra Stretch The Trainer 004",
     price: 1299000,
-    sale: 0,
     is_new: true,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "ao",
@@ -84,7 +78,6 @@
   {
     name: "Áo Thun Suede Mềm Mịn The Weekend 014",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "ao",
     brandSlug: "nike",
@@ -94,7 +87,6 @@
   {
     name: "Áo Thun Tay Ngắn Waffle Co Giãn Seventy Seven 44",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "ao",
     brandSlug: "nike",
@@ -106,7 +98,6 @@
   {
     name: "Quần Short Thun 9 Inch Thoáng Mát Non Branded 05",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "quan",
     brandSlug: "nike",
@@ -127,7 +118,6 @@
   {
     name: "Quần Short Thun 7 Inch Nhanh Khô No Style M129",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "quan",
     brandSlug: "nike",
@@ -137,7 +127,6 @@
   {
     name: "Quần Short 5 Inch Vải Mesh Thoáng Khí No Style M153",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "quan",
     brandSlug: "nike",
@@ -147,7 +136,6 @@
   {
     name: "Quần Short Thun 9 Inch Mềm Mịn Mát The Minimalist 009",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "quan",
     brandSlug: "nike",
@@ -157,7 +145,6 @@
   {
     name: "Quần Short Thun Vải Mesh Thoáng Mát No Style M158",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "quan",
     brandSlug: "nike",
@@ -177,7 +164,6 @@
   {
     name: "Quần Short Thun Vải Shiny Ít Nhăn No Style M157",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "quan",
     brandSlug: "nike",
@@ -197,7 +183,6 @@
   {
     name: "Quần Short Thun Cotton Single Dragon Ball Z 25",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "quan",
     brandSlug: "nike",
@@ -209,7 +194,6 @@
   {
     name: "Nón Dad Hat Dù Mỏng Nhẹ Mesh Thoáng Khí #Y2010 04",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "phu-kien",
     brandSlug: "nike",
@@ -219,7 +203,6 @@
   {
     name: "Nón Dad Hat Dù Lỗ Lazer Thoáng Khí NB 12",
     price: 1299000,
-    sale: 0,
     is_new: true,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "phu-kien",
@@ -230,7 +213,6 @@
   {
     name: "Nón Dad Hat Gấp Gọn Thông Minh Ready To Go 15",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "phu-kien",
     brandSlug: "nike",
@@ -240,7 +222,6 @@
   {
     name: "Nón Dad Hat Dù Mỏng Nhẹ #Y2010 03",
     price: 1299000,
-    sale: 0,
     description: "Áo thun thể thao ultra thin, màu đỏ nổi bật.",
     categorySlug: "phu-kien",
     brandSlug: "nike",

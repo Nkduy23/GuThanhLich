@@ -1,7 +1,11 @@
 [
   {
-    "userId": { "$oid": "64f010c1a1e1a10000000001" },
-    "status": "active",
-    "quantity": 2
-  }
+    userId: { $oid: "64f010c1a1e1a10000000001" },
+    productId: { $oid: "64f010c1a1e1a10000000001" },
+    variantId: { $oid: "64f010c1a1e1a10000000001" },
+    size: "M",
+    quantity: 1,
+    unit_price: 100000,
+    total_price: 100000,
+  },
 ]

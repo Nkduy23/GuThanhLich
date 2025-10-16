@@ -1,8 +1,7 @@
 import { Response, Request } from "express";
-import { getParentCategoryData } from "../../services/client/home.service";
 import { getNavCategory, getCategoryBySlug } from "../../services/client/category.service";
 
-export const renderCategories = async (req: Request, res: Response) => {
+export const renderMenus = async (req: Request, res: Response) => {
   try {
     const data = await getNavCategory();
     res.json({ success: true, categories: data });
@@ -10,17 +9,6 @@ export const renderCategories = async (req: Request, res: Response) => {
     console.error("Error render Categories", error);
 
     res.status(500).send("Lỗi khi lấy dữ liệu Category");
-  }
-};
-
-export const renderParentCategories = async (req: Request, res: Response) => {
-  try {
-    const data = await getParentCategoryData();
-    res.json({ success: true, categories: data });
-  } catch (error) {
-    console.error("Error render Parent Categories", error);
-
-    res.status(500).send("Lỗi khi lấy dữ liệu cha của categories");
   }
 };
 

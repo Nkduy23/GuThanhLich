@@ -4,8 +4,7 @@ export const getNavCategory = async () => {
   return Category.find().select("name slug parentSlug").lean();
 };
 
-// nin: not in
-export const getAllParentCategories = async () => {
+export const getParentCategories = async () => {
   return Category.find({ parentSlug: null, slug: { $nin: ["khuyen-mai", "new", "gu"] } })
     .select("name slug image")
     .lean();

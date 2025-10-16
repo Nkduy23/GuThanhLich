@@ -7,7 +7,7 @@ const MainLayout: React.FC = () => {
     <div className="font-sans bg-slate-50">
       <Header />
       <main>
-        <Outlet /> {/* tất cả route con sẽ hiển thị ở đây */}
+        <Outlet />
       </main>
       <FooterContainer />
     </div>

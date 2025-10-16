@@ -1,7 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import type { ProductPopulated, Variant, Highlight, Review, Spec } from "../../types";
+import type { ProductPopulated, Variant, Highlight, Review, Spec, Cart_Item } from "../../types";
 import ProductCarousel from "../components/product/ProductCarousel";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -16,6 +18,13 @@ const ProductDetail: React.FC = () => {
   const [isSpecsExpanded, setIsSpecsExpanded] = useState(false);
   const [displayName, setDisplayName] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+
+  const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   const formatCurrency = (price: number) => `${price.toLocaleString("vi-VN")} VNĐ`;
 
@@ -60,6 +69,71 @@ const ProductDetail: React.FC = () => {
 
   const discountedPrice =
     product.sale && product.sale > 0 ? product.price - (product.price * product.sale) / 100 : null;
+
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    if (!selectedSize) {
+      setError("Vui lòng chọn kích thước");
+      return;
+    }
+
+    if (quantity < 1) {
+      setError("Số lượng phải lớn hơn 0");
+      return;
+    }
+
+    if (!selectedVariant) {
+      setError("Không tìm thấy biến thể sản phẩm");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const newItem: Cart_Item = {
+      _id: "", // replace with a valid _id value
+      productId: selectedVariant.productId,
+      variantId: selectedVariant._id,
+      name: product.name, // replace with a valid name value
+      image: product.image ?? "", // replace with a valid image value
+      color: selectedVariant.color, // replace with a valid color value
+      size: selectedSize,
+      quantity,
+      unit_price: discountedPrice ?? product?.price,
+      total_price: discountedPrice ?? product?.price * quantity,
+      availableColors: [],
+      availableSizes: [],
+      price: 0,
+    };
+
+    try {
+      if (isAuthenticated) {
+        // Nếu đã đăng nhập -> thêm vào DB qua API
+        await addToCart(newItem);
+      } else {
+        // Nếu chưa login -> lưu localStorage
+        const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const existingIndex = localCart.findIndex(
+          (item: Cart_Item) => item.variantId === newItem.variantId && item.size === newItem.size
+        );
+
+        if (existingIndex > -1) {
+          localCart[existingIndex].quantity += quantity;
+        } else {
+          localCart.push(newItem);
+        }
+
+        localStorage.setItem("cart", JSON.stringify(localCart));
+      }
+
+      alert("Thêm vào giỏ hàng thành công");
+      setQuantity(1);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChangeVariant = (variantId: string) => {
     const v = variants.find((v) => v._id === variantId) || null;
@@ -141,7 +215,7 @@ const ProductDetail: React.FC = () => {
                 .map((v) => (
                   <button
                     key={v._id}
-                    className={`flex flex-col items-center border rounded-full overflow-hidden p-1 ${
+                    className={`flex gap-2 items-center border rounded-2xl overflow-hidden p-1 ${
                       selectedVariant?._id === v._id ? "border-blue-500" : "border-gray-300"
                     }`}
                     onClick={() => handleChangeVariant(v._id)}
@@ -150,7 +224,7 @@ const ProductDetail: React.FC = () => {
                       <img
                         src={v.images[0]}
                         alt={v.color}
-                        className="w-15 h-15 object-cover rounded"
+                        className="w-12 h-12 object-cover rounded"
                       />
                     )}
                     <span className="text-sm mt-1">{v.color}</span>
@@ -200,14 +274,30 @@ const ProductDetail: React.FC = () => {
               id="quantity"
               name="quantity"
               min="1"
-              max="5"
-              defaultValue="1"
+              max={
+                selectedSize
+                  ? selectedVariant?.sizes.find((s) => s.size === selectedSize)?.quantity || 5
+                  : 5
+              }
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
               className="w-24 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200"
             />
           </div>
 
-          <button className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
-            Thêm Vào Giỏ Hàng
+          {/* Error message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <button
+            onClick={handleAddToCart}
+            disabled={loading || !selectedSize}
+            className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+          >
+            {loading ? "Đang thêm..." : "Thêm Vào Giỏ Hàng"}
           </button>
 
           {/* Thông số kỹ thuật - Collapsible */}

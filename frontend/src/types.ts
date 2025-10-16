@@ -4,30 +4,72 @@ export interface CategoryRef {
   name: string;
 }
 
-export interface ProductVariant {
+export interface BrandRef {
   _id: string;
+  name: string;
+}
+
+export interface Size {
+  size: string;
+  quantity: number;
+}
+
+export interface ProductVariant {
+  _id?: string;
   color: string;
   colorNameVi: string;
+  sizes: Size[];
   images: string[];
+  is_active: boolean;
+  productId?: string;
+  variantName?: string;
+}
+
+export interface ProductSpec {
+  _id?: string;
+  key: string;
+  value: string;
+  productId?: string;
+}
+
+export interface ProductHighlight {
+  _id?: string;
+  title: string;
+  description: string;
+  productId?: string;
 }
 
 export interface Product {
+  brandSlug?: string;
   _id: string;
   name: string;
-  slug: string;
+  code?: string;
+  tags: string[];
+  slug?: string;
   price: number;
-  image: string;
+  totalStock?: number;
+  finalPrice?: number;
+  image?: string;
   sale: number;
-  is_new: boolean;
+  is_new?: boolean;
   description: string;
   is_active: boolean;
-  defaultVariantId?: ProductVariant;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  categoryId: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  brandId?: any;
+  defaultVariantId?: string;
+  productSpecs?: ProductSpec[];
+  productHighlights?: ProductHighlight[];
+  productVariants?: ProductVariant[];
 }
 
+export type ProductIds = Pick<Product, "_id" | "productVariants" | "name"> & { images: string[] };
+
 export interface ProductPopulated extends Product {
-  tags: string;
   categorySlug: string;
   categoryId: CategoryRef;
+  brandId: BrandRef;
 }
 
 export interface Variant {
@@ -40,6 +82,8 @@ export interface Variant {
     size: string;
     quantity: number;
   }[];
+  availableSizes: string[];
+  availableColors: { color: string; variantId: string }[];
   images: string[];
 }
 
@@ -80,6 +124,30 @@ export interface Category {
   products?: Product[];
 }
 
+export interface Cart_Item {
+  _id: string;
+  productId: string;
+  variantId: string;
+  name: string;
+  image: string;
+  color: string;
+  size: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  availableColors: { color: string; variantId: string }[];
+  availableSizes: string[];
+  price: number;
+  id?: string;
+}
+
+export type LocalSummary = Pick<
+  Cart_Item,
+  "productId" | "quantity" | "size" | "unit_price" | "variantId" | "price"
+> & {
+  size?: string;
+};
+
 export interface User {
   _id: string;
   name: string;
@@ -98,14 +166,6 @@ export interface SocialLink {
   name: string;
   icon: string;
   href: string;
-}
-
-export interface Cart_Item {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
 }
 
 export interface ContactInfo {

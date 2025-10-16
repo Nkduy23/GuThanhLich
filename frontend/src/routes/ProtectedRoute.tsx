@@ -1,14 +1,14 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { isTokenExpired } from "../utils/auth";
+import { useAuth } from "../client/context/AuthContext";
 
 const ProtectedRoute: React.FC = () => {
-  const token = localStorage.getItem("token");
+  const { isAuthenticated } = useAuth();
 
-  if (!token || isTokenExpired(token)) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />; // render route con
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

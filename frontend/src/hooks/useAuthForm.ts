@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { showToast, showNetworkError } from "../utils/toastHandler";
 
 interface ApiResponse<T> {
   success?: boolean;
@@ -6,38 +7,36 @@ interface ApiResponse<T> {
   data?: T;
 }
 
-function useAuthForm<T>(url: string, onSuccess: (data: T) => void) {
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+function useAuthForm<T>(url: string, onSuccess?: (data: T) => void) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (body: unknown) => {
-    setError("");
-    setMessage("");
     setLoading(true);
     try {
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        credentials: "include",
       });
 
       const data: ApiResponse<T> = await response.json();
 
-      if (response.ok) {
-        setMessage(data.message || "Thành công!");
-        onSuccess(data as T);
-      } else {
-        setError(data.message || "Lỗi không xác định");
+      // ✅ Hiển thị toast từ BE message
+      showToast(response, data);
+
+      // ✅ Nếu BE trả success thì chạy callback (VD: redirect)
+      if (response.ok && data.success) {
+        onSuccess?.(data.data as T);
       }
     } catch {
-      setError("Lỗi kết nối server");
+      showNetworkError();
     } finally {
       setLoading(false);
     }
   };
 
-  return { error, message, loading, handleSubmit };
+  return { loading, handleSubmit };
 }
 
 export default useAuthForm;

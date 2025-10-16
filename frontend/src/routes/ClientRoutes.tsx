@@ -12,6 +12,7 @@ const Checkout = lazy(() => import("../client/pages/CheckoutPage"));
 const LoginPage = lazy(() => import("../client/pages/LoginPage"));
 const RegisterPage = lazy(() => import("../client/pages/RegisterPage"));
 const ForgotPage = lazy(() => import("../client/pages/ForgotPage"));
+const ResetPasswordPage = lazy(() => import("../client/pages/ResetPasswordPage"));
 const ProfilePage = lazy(() => import("../client/pages/ProfilePage"));
 const CartPage = lazy(() => import("../client/pages/CartPage"));
 
@@ -28,15 +29,17 @@ const ClientRoutes: React.FC = () => {
             </>
           }
         />
-        <Route path="/category/:slug" element={<CategoryPage />} />
-        <Route path="/products/:slug" element={<ProductDetail />} />
-        <Route path="/checkout" element={<Checkout />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth/google/callback" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/category/:slug" element={<CategoryPage />} />
+        <Route path="/products/:slug" element={<ProductDetail />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Route>
 
         {/* ✅ Catch all routes sai ở client */}

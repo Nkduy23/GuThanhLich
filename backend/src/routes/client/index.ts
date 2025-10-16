@@ -1,30 +1,26 @@
 import { Router } from "express";
-import productRouter from "./product.routes";
-import checkoutRouter from "./checkout.routes";
+import homeRouter from "./home.routes";
 import authRouter from "./auth.routes";
+import productRouter from "./product.routes";
+import cartRouter from "./cart.routes";
+import checkoutRouter from "./checkout.routes";
 import userRouter from "./user.routes";
 import reviewRouter from "./review.routes";
 import brandRouter from "./brand.routers";
-import blogRouter from "./blog.routes";
-import { renderHome } from "../../controllers/client/home.controller";
-import {
-  renderCategory,
-  renderCategories,
-  renderParentCategories,
-} from "../../controllers/client/category.controller";
+
+import { renderCategory, renderMenus } from "../../controllers/client/category.controller";
 
 const router = Router();
 
-router.get("/", renderHome);
+router.use("/home", homeRouter);
+router.use("/menus", renderMenus);
+router.use("/auth", authRouter);
 router.use("/products", productRouter);
+router.use("/cart", cartRouter);
 router.get("/category/:slug", renderCategory);
-router.use("/categories", renderCategories);
-router.use("/parentCategories", renderParentCategories);
 router.use("/checkout", checkoutRouter);
 router.use("/reviews", reviewRouter);
 router.use("/brand", brandRouter);
-router.use("/auth", authRouter);
 router.use("/user", userRouter);
-router.use("/blogs", blogRouter);
 
 export default router;

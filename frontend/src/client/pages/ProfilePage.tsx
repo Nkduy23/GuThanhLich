@@ -12,16 +12,10 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
     const fetchUserData = async () => {
       try {
         const response = await fetch("http://localhost:3000/api/user/profile", {
-          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
         });
         const data = await response.json();
 

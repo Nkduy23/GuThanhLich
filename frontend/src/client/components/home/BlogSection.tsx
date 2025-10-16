@@ -1,24 +1,12 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React from "react";
 import type { Blog } from "../../../types";
 
-const BlogSection: React.FC = () => {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+interface BlogSectionProps {
+  blogs: Blog[];
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/blogs");
-        const data = await response.json();
-        setBlogs(data.blogs || []); // giả sử API trả { blogs: [...] }
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
+const BlogSection: React.FC<BlogSectionProps> = ({ blogs }) => {
   return (
     <div className="max-w-6xl mx-auto px-4 mt-16">
       <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Bài viết mới</h2>

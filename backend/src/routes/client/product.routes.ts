@@ -2,12 +2,15 @@ import { Router } from "express";
 import {
   getProduct,
   getProductDetail,
-  // getRelated,
+  getProductById,
+  getBatchTest,
 } from "../../controllers/client/product.controller";
 
 const router = Router();
 
-router.get("/", getProduct);
+router.get("/", getProduct); // Chưa sài
+router.post("/batch", getBatchTest);
 router.get("/:slug", getProductDetail);
-// router.get("/:slug/related", getRelated);
+router.get("/id/:id", getProductById);
+
 export default router;

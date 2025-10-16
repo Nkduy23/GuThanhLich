@@ -9,14 +9,13 @@ interface ForgotFormProps {
 const ForgotForm: React.FC<ForgotFormProps> = ({ onSuccess }) => {
   const [email, setEmail] = useState("");
 
-  const { error, loading, handleSubmit } = useAuthForm(
-    "http://localhost:3000/api/auth/register",
-    () => onSuccess()
+  const { loading, handleSubmit } = useAuthForm(
+    "http://localhost:3000/api/auth/forgot-password",
+    onSuccess
   );
 
   return (
     <>
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
       <form
         onSubmit={(e) => {
           e.preventDefault();

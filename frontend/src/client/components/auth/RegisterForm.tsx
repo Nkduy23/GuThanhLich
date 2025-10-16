@@ -7,34 +7,53 @@ interface RegisterFormProps {
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const { error, loading, handleSubmit } = useAuthForm(
+  const { loading, handleSubmit } = useAuthForm(
     "http://localhost:3000/api/auth/register",
-    () => onSuccess()
+    onSuccess
   );
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit({ fullName, userName, email, phone, password, confirmPassword });
+  };
 
   return (
     <>
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit({ name, email, phone, password });
-        }}
-      >
+      <form onSubmit={onSubmit}>
+        {/* Tên khách hàng */}
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-            Tên
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fullName">
+            Họ và tên
           </label>
           <input
             type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            id="fullName"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Nguyễn Khánh Duy"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+          />
+        </div>
+
+        {/* Tên tài khoản */}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+            Tên đăng nhập
+          </label>
+          <input
+            type="text"
+            id="userName"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            placeholder="khanhduy23"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
@@ -48,6 +67,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder="9R9H2@example.com"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
@@ -61,6 +81,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
             id="phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            placeholder="0123456789"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
@@ -74,6 +95,19 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+            Nhập lại mật khẩu
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />

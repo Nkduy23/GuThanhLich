@@ -75,7 +75,6 @@ const CategoryPage: React.FC = () => {
     if (filterType === "new") list = list.filter((p) => Boolean(p.is_new));
     if (filterType === "sale") list = list.filter((p) => (p.sale ?? 0) > 0);
 
-    // ✅ Dùng giá trị số thật để lọc (minPriceNum / maxPriceNum)
     if (minPriceNum !== null && !Number.isNaN(minPriceNum)) {
       list = list.filter((p) => p.effectivePrice >= minPriceNum);
     }

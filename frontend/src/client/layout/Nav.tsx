@@ -1,28 +1,28 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; // Sử dụng Link thay href cho SPA
-import type { Category } from "../../types"; // Giả sử types.ts có interface Category
+import { apiRequest } from "../../api/fetcher";
+import { ENDPOINTS } from "../../api/endpoints";
+import { Link } from "react-router-dom";
+import type { Category } from "../../types";
 
 const Navigation = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/categories")
-      .then((res) => res.json())
-      .then((data) => {
-        setCategories(data.categories);
+    const fetchCategories = async () => {
+      try {
+        const res = await apiRequest<{ categories: Category[] }>(ENDPOINTS.menus);
+        setCategories(res.categories || []);
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Lỗi tải categories");
+      } catch (err) {
+        console.error("Error fetching categories:", err);
         setLoading(false);
-      });
+      }
+    };
+    fetchCategories();
   }, []);
 
   if (loading) return <div>Loading nav...</div>;
-  if (error) return <div>{error}</div>;
 
   // Lấy main categories (parentSlug = null)
   const mainCategories = categories.filter((cat) => cat.parentSlug === null);
@@ -46,8 +46,20 @@ const Navigation = () => {
                 className="flex items-center justify-between px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors"
               >
                 {sub.name}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 5L16 12L9 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9 5L16 12L9 19"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </a>
               <div className="absolute left-full top-0 hidden w-40 rounded-lg bg-white text-black shadow-lg group-hover/sub:block z-30">
@@ -65,7 +77,11 @@ const Navigation = () => {
           );
         }
         return (
-          <a key={sub.slug} href={`/category/${sub.slug}`} className="block px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors">
+          <a
+            key={sub.slug}
+            href={`/category/${sub.slug}`}
+            className="block px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors"
+          >
             {sub.name}
           </a>
         );
@@ -93,14 +109,20 @@ const Navigation = () => {
                     {subSubs.length > 0 ? (
                       subSubs.map((subSub) => (
                         <li key={subSub.slug}>
-                          <Link to={`/category/${subSub.slug}`} className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                          <Link
+                            to={`/category/${subSub.slug}`}
+                            className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                          >
                             {subSub.name}
                           </Link>
                         </li>
                       ))
                     ) : (
                       <li>
-                        <Link to={`/category/${sub.slug}`} className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                        <Link
+                          to={`/category/${sub.slug}`}
+                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                        >
                           {sub.name} (Không có sub)
                         </Link>
                       </li>
@@ -128,7 +150,13 @@ const Navigation = () => {
               className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors uppercase font-medium"
             >
               {mainCat.name}
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
                   d="M5.70711 9.71069C5.31658 10.1012 5.31658 10.7344 5.70711 11.1249L10.5993 16.0123C11.3805 16.7927 12.6463 16.7924 13.4271 16.0117L18.3174 11.1213C18.708 10.7308 18.708 10.0976 18.3174 9.70708C17.9269 9.31655 17.2937 9.31655 16.9032 9.70708L12.7176 13.8927C12.3271 14.2833 11.6939 14.2832 11.3034 13.8927L7.12132 9.71069C6.7308 9.32016 6.09763 9.32016 5.70711 9.71069Z"
                   fill="currentColor"

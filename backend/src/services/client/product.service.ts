@@ -1,6 +1,5 @@
 import { Product } from "../../models";
-
-export const getAllProducts = async () => {};
+import { getFeaturedCategories } from "./category.service";
 
 export const getActiveProducts = async () => {
   let products: any[] = [];
@@ -42,10 +41,26 @@ export const getProductsByCategorySlug = async (slug: string) => {
   }
 };
 
+export const getCategoryProducts = async () => {
+  const categories = await getFeaturedCategories();
+
+  const categoriesWithProducts = await Promise.all(
+    categories.map(async (cat) => {
+      const catProducts = await getProductsByCategorySlug(cat.slug || "");
+      return { ...cat, products: catProducts.slice(0, 10) };
+    })
+  );
+
+  return categoriesWithProducts;
+};
+
 export const getProductBySlug = async (slug: string) => {
   return Product.findOne({ slug })
     .populate("categoryId", "slug name")
-    .populate("productVariants")
+    .populate({
+      path: "productVariants",
+      match: { is_active: true },
+    })
     .populate("productSpecs")
     .populate("reviews")
     .populate("productHighlights")
@@ -75,4 +90,35 @@ export const getRelatedProducts = async (categorySlug: string, slug: string) => 
       images: p.defaultVariantId?.images?.length ? [p.defaultVariantId.images[0]] : [],
     },
   }));
+};
+
+export const getProductById = async (id: string) => {
+  return Product.findById(id) // findById thay findOne
+    .populate("categoryId", "slug name")
+    .populate({
+      path: "productVariants",
+      match: { is_active: true },
+    })
+    .populate("productSpecs")
+    .populate("reviews")
+    .populate("productHighlights")
+    .lean();
+};
+
+export const getProductByIdServiceTest = async (ids: string[]) => {
+  try {
+    const products = await Product.find({ _id: { $in: ids } })
+      .select("_id name images") // Add defaultImage if your model has it: "_id name images defaultImage"
+      .populate({
+        path: "productVariants",
+        model: "ProductVariant",
+        match: { is_active: true },
+        select: "_id color images sizes", // Select only needed fields for variants to optimize
+      })
+      .lean();
+    return products;
+  } catch (error) {
+    console.error("Batch fetch error:", error);
+    throw error;
+  }
 };

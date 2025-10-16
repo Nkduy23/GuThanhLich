@@ -1,25 +1,43 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import LoginForm from "../components/auth/LoginForm";
-import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { login, isAuthenticated, role } = useAuth();
 
-  interface TokenPayload {
-    id: string;
-    role: string;
-    exp: number;
-  }
+  const { mergeLocalCart } = useCart();
 
-  const handleLoginSuccess = (token: string) => {
-    const decoded = jwtDecode<TokenPayload>(token);
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", decoded.role);
-    login(token, decoded.role);
-    navigate(decoded.role === "admin" ? "/admin" : "/");
+  useEffect(() => {
+    if (isAuthenticated) {
+      mergeLocalCart();
+    }
+  }, [isAuthenticated]);
+
+  const handleLoginSuccess = (role: string) => {
+    login(role);
+    navigate(role === "admin" ? "/admin" : "/");
   };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const error = urlParams.get("error");
+    if (error) {
+      console.error("Auth failed:", error);
+      return;
+    }
+
+    if (isAuthenticated && role) {
+      navigate(role === "admin" ? "/admin" : "/");
+    }
+  }, [location, navigate, isAuthenticated, role]);
+
+  if (isAuthenticated && role) {
+    return null;
+  }
 
   return (
     <div className="max-w-md mx-auto my-15 p-6 bg-white rounded-lg shadow-lg">

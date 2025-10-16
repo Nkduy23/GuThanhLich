@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as AdminCategoryService from "../../services/admin/adminCategory.service";
+import * as AdminCategoryService from "../../services/admin/category.service";
 
 // GET all categories
 export const getCategories = async (req: Request, res: Response) => {
@@ -31,10 +31,26 @@ export const getCategoryById = async (req: Request, res: Response) => {
 // CREATE category
 export const createCategory = async (req: Request, res: Response) => {
   try {
-    const newCategory = await AdminCategoryService.createCategory(req.body);
-    res.status(201).json({ success: true, category: newCategory });
+    const result = await AdminCategoryService.createCategory(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: result.message,
+      category: result.category,
+    });
   } catch (error) {
-    res.status(400).json({ success: false, message: "Error creating category", error });
+    console.error("Lỗi tạo danh mục:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server, vui lòng thử lại sau",
+    });
   }
 };
 
@@ -42,17 +58,26 @@ export const createCategory = async (req: Request, res: Response) => {
 export const updateCategory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updated = await AdminCategoryService.updateCategory(id, req.body);
+    const result = await AdminCategoryService.updateCategory(id, req.body);
 
-    if (!updated) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Không tìm thấy danh mục để cập nhật." });
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.message,
+      });
     }
 
-    res.json({ success: true, category: updated });
+    res.json({
+      success: true,
+      message: result.message,
+      category: result.category,
+    });
   } catch (err) {
-    res.status(400).json({ success: false, message: "Error updating category", error: err });
+    console.error("Lỗi cập nhật danh mục:", err);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server, vui lòng thử lại sau",
+    });
   }
 };
 
@@ -60,14 +85,24 @@ export const updateCategory = async (req: Request, res: Response) => {
 export const deleteCategory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const deleted = await AdminCategoryService.deleteCategory(id);
+    const result = await AdminCategoryService.deleteCategory(id);
 
-    if (!deleted) {
-      return res.status(404).json({ success: false, message: "Không tìm thấy danh mục để xóa." });
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.message,
+      });
     }
 
-    res.json({ success: true, message: "Category deleted" });
+    res.json({
+      success: true,
+      message: result.message,
+    });
   } catch (err) {
-    res.status(400).json({ success: false, message: "Error deleting category", error: err });
+    console.error("Lỗi xóa danh mục:", err);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server, vui lòng thử lại sau",
+    });
   }
 };
