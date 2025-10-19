@@ -1,4 +1,11 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { IVoucher } from "./Voucher";
+
+interface IAppliedVoucher {
+  code: string;
+  type: "fixed" | "percentage";
+  discountAmount: number;
+}
 
 export interface ICartItem extends Document {
   userId: mongoose.Types.ObjectId;
@@ -11,6 +18,7 @@ export interface ICartItem extends Document {
   unit_price: number;
   total_price: number;
   createdAt: Date;
+  appliedVoucher?: IAppliedVoucher;
 }
 
 const cartItemSchema = new mongoose.Schema<ICartItem>({
@@ -51,6 +59,12 @@ const cartItemSchema = new mongoose.Schema<ICartItem>({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+
+  appliedVoucher: {
+    code: { type: String },
+    type: { type: String, enum: ["fixed", "percentage"] },
+    discountAmount: { type: Number },
   },
 });
 

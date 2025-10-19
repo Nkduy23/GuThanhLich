@@ -50,7 +50,6 @@ export const login = async (req: Request, res: Response) => {
 
     const token = generateToken(result._id.toString(), result.role);
 
-    // Set cookie token
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -61,8 +60,8 @@ export const login = async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
-      message: "Đăng nhập thành công 🎉",
-      data: { role: result.role, token },
+      message: "Đăng nhập thành công",
+      data: { role: result.role },
     });
   } catch (error) {
     return res.status(400).json({

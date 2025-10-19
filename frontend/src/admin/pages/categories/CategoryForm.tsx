@@ -19,6 +19,9 @@ const CategoryForm: React.FC = () => {
     isFeatured: false,
     order: 0,
   });
+
+  const [imageFile, setImageFile] = useState<File | null>(null); // ✅ State cho file mới
+  const [imagePreview, setImagePreview] = useState<string | null>(null); // ✅ Preview URL
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -42,6 +45,10 @@ const CategoryForm: React.FC = () => {
         .then((res) => res.json())
         .then((data) => {
           setFormData(data.category);
+          // ✅ Set preview nếu có image path
+          if (data.category.image) {
+            setImagePreview(`http://localhost:3000${data.category.image}`);
+          }
           setLoading(false);
         })
         .catch((err) => {
@@ -51,6 +58,17 @@ const CategoryForm: React.FC = () => {
         });
     }
   }, [isEditMode, id]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+      // Clear khi unmount
+      return () => URL.revokeObjectURL(previewUrl);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -83,33 +101,54 @@ const CategoryForm: React.FC = () => {
     setLoading(true);
 
     try {
+      const formDataToSend = new FormData(); // ✅ Sử dụng FormData cho multipart
+      // Append fields
+      Object.keys(formData).forEach((key) => {
+        const value = formData[key as keyof Partial<Category>];
+        if (value !== undefined && value !== null) {
+          if (typeof value === "string" || value instanceof Blob) {
+            formDataToSend.append(key, value);
+          } else {
+            formDataToSend.append(key, value.toString());
+          }
+        }
+      });
+      // ✅ Append file nếu có
+      if (imageFile) {
+        formDataToSend.append("image", imageFile);
+      }
+
       if (isEditMode) {
         // Update
         const res = await fetch(`http://localhost:3000/admin/categories/${id}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: formDataToSend, // ✅ Không set Content-Type
         });
 
         if (!res.ok) {
-          throw new Error("Update failed");
+          const errData = await res.json();
+          throw new Error(errData.message || "Update failed");
         }
       } else {
         // Create
         const res = await fetch("http://localhost:3000/admin/categories", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: formDataToSend, // ✅ Không set Content-Type
         });
 
         if (!res.ok) {
-          throw new Error("Create failed");
+          const errData = await res.json();
+          throw new Error(errData.message || "Create failed");
         }
       }
 
+      // ✅ Clear preview nếu thành công
+      setImagePreview(null);
+      setImageFile(null);
       navigate("/admin/categories");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+    } catch (err: any) {
+      setError(err.message || "An error occurred");
+    } finally {
       setLoading(false);
     }
   };
@@ -201,14 +240,34 @@ const CategoryForm: React.FC = () => {
 
           {/* Image URL */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium">Image URL</label>
+            <label className="block mb-2 text-sm font-medium">Image</label>
             <input
-              type="text"
+              type="file"
               name="image"
-              value={formData.image || ""}
-              onChange={handleChange}
+              accept="image/*"
+              onChange={handleImageChange}
               className="w-full border border-gray-300 px-3 py-2 rounded focus:border-blue-500 focus:ring focus:ring-blue-200"
             />
+            {/* Preview */}
+            {imagePreview && (
+              <div className="mt-2">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-32 h-32 object-cover rounded border"
+                />
+              </div>
+            )}
+            {formData.image && !imageFile && isEditMode && (
+              <div className="mt-2">
+                <p className="text-sm text-gray-500">Current: {formData.image}</p>
+                <img
+                  src={`http://localhost:3000${formData.image}`}
+                  alt="Current"
+                  className="w-32 h-32 object-cover rounded border mt-1"
+                />
+              </div>
+            )}
           </div>
 
           {/* Parent Category */}

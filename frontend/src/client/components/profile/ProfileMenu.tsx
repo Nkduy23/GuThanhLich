@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { User, MapPin, Package, Settings, LogOut } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "@context/auth/useAuth";
 
 const ProfileMenu: React.FC = () => {
   const [active, setActive] = useState("info");

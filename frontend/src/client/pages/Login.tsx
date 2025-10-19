@@ -1,26 +1,20 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import LoginForm from "../components/auth/LoginForm";
-import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext";
+import LoginForm from "@client/components/auth/LoginForm";
+import { useAuth } from "@context/auth/useAuth";
+import { useCart } from "@context/cart/useCart";
 
-const LoginPage: React.FC = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated, role } = useAuth();
-
   const { mergeLocalCart } = useCart();
 
   useEffect(() => {
     if (isAuthenticated) {
       mergeLocalCart();
     }
-  }, [isAuthenticated]);
-
-  const handleLoginSuccess = (role: string) => {
-    login(role);
-    navigate(role === "admin" ? "/admin" : "/");
-  };
+  }, [isAuthenticated, mergeLocalCart]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -31,9 +25,18 @@ const LoginPage: React.FC = () => {
     }
 
     if (isAuthenticated && role) {
-      navigate(role === "admin" ? "/admin" : "/");
+      const redirectPath = location.state?.from || (role === "admin" ? "/admin" : "/");
+      navigate(redirectPath);
     }
   }, [location, navigate, isAuthenticated, role]);
+
+  const handleLoginSuccess = (role: string) => {
+    login(role);
+
+    // Nếu người dùng đến từ 1 trang cụ thể (vd: checkout) thì quay lại đó
+    const redirectPath = location.state?.from || (role === "admin" ? "/admin" : "/");
+    navigate(redirectPath);
+  };
 
   if (isAuthenticated && role) {
     return null;

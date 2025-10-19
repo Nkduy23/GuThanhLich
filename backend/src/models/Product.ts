@@ -33,26 +33,25 @@ const ProductsSchema: Schema = new Schema({
   defaultVariantId: { type: Schema.Types.ObjectId, ref: "ProductVariant", default: null },
 });
 
-ProductsSchema.virtual("productSpecs", {
-  ref: "ProductSpec",
-  localField: "_id",
-  foreignField: "productId",
-});
-
-ProductsSchema.virtual("reviews", {
-  ref: "Review",
-  localField: "_id",
-  foreignField: "productId",
-});
-
 ProductsSchema.virtual("productVariants", {
   ref: "ProductVariant",
   localField: "_id",
   foreignField: "productId",
 });
 
+ProductsSchema.virtual("productSpecifications", {
+  ref: "ProductSpec",
+  localField: "_id",
+  foreignField: "productId",
+});
+
 ProductsSchema.virtual("productHighlights", {
   ref: "ProductHighlight",
+  localField: "_id",
+  foreignField: "productId",
+});
+ProductsSchema.virtual("reviews", {
+  ref: "Review",
   localField: "_id",
   foreignField: "productId",
 });

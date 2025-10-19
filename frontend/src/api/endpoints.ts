@@ -3,6 +3,7 @@ export const ENDPOINTS = {
 
   register: "/api/auth/register",
   login: "/api/auth/login",
+  forgot: "/api/auth/forgot-password",
   logout: "/api/auth/logout",
   google: "/api/auth/google",
   me: "/api/auth/me",
@@ -15,6 +16,7 @@ export const ENDPOINTS = {
   cartAdd: "/api/cart/add",
   cartUpdate: "/api/cart/update",
   cartRemove: "/api/cart/remove",
+  cartRemoveAll: "/api/cart/remove-all",
   cartMerge: "/api/cart/merge",
 
   product: "/api/products",

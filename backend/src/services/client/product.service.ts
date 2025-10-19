@@ -61,9 +61,9 @@ export const getProductBySlug = async (slug: string) => {
       path: "productVariants",
       match: { is_active: true },
     })
-    .populate("productSpecs")
-    .populate("reviews")
+    .populate("productSpecifications")
     .populate("productHighlights")
+    .populate("reviews")
     .lean();
 };
 
@@ -105,15 +105,15 @@ export const getProductById = async (id: string) => {
     .lean();
 };
 
-export const getProductByIdServiceTest = async (ids: string[]) => {
+export const getProductBatch = async (ids: string[]) => {
   try {
     const products = await Product.find({ _id: { $in: ids } })
-      .select("_id name images") // Add defaultImage if your model has it: "_id name images defaultImage"
+      .select("_id name images")
       .populate({
         path: "productVariants",
         model: "ProductVariant",
         match: { is_active: true },
-        select: "_id color images sizes", // Select only needed fields for variants to optimize
+        select: "_id color images sizes",
       })
       .lean();
     return products;

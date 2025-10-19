@@ -1,15 +1,7 @@
-import { createContext, useState, useContext, useEffect, type ReactNode } from "react";
-import { apiRequest } from "../../api/fetcher";
-import { ENDPOINTS } from "../../api/endpoints";
-
-interface AuthContextType {
-  role: string | null;
-  isAuthenticated: boolean;
-  login: (role: string) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { useState, useEffect, type ReactNode } from "react";
+import { AuthContext } from "./AuthContext";
+import { apiRequest } from "@api/fetcher";
+import { ENDPOINTS } from "@api/endpoints";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [role, setRole] = useState<string | null>(null);
@@ -36,7 +28,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Verify khi mount (sau Google redirect hoặc refresh page)
   useEffect(() => {
     verifyAuth();
   }, []);
@@ -72,11 +63,4 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </AuthContext.Provider>
   );
-};
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
 };

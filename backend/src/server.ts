@@ -6,6 +6,7 @@ import footerData from "./utils/footerData";
 import clientRouter from "./routes/client";
 import adminRouter from "./routes/admin";
 import cookieParser from "cookie-parser";
+import path from "path";
 
 import passport from "./config/passport";
 
@@ -25,6 +26,10 @@ app.use(
     credentials: true,
   })
 );
+
+app.use("/images", express.static(path.join(__dirname, "../frontend/public")));
+
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.use(cookieParser());
 app.use(express.json());

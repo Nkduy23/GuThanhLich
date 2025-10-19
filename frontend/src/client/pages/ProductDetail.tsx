@@ -1,51 +1,80 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import type { ProductPopulated, Variant, Highlight, Review, Spec, Cart_Item } from "../../types";
-import ProductCarousel from "../components/product/ProductCarousel";
-import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContext";
+import { useEffect, useState, useMemo } from "react";
+import { apiRequest } from "@api/fetcher";
+import { ENDPOINTS } from "@api/endpoints";
+import { toast } from "react-toastify";
+import { useCart } from "@context/cart/useCart";
+import type {
+  Product,
+  ProductDetail,
+  ProductVariant,
+  ProductHighlights,
+  Reviews,
+  ProductSpecifications,
+  Cart_Item,
+} from "@client/types";
+import ProductCarousel from "@client/components/product/ProductCarousel";
+import { Breadcrumb, generateBreadcrumb } from "@utils/breadcrumb";
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [product, setProduct] = useState<ProductPopulated | null>(null);
-  const [variants, setVariants] = useState<Variant[]>([]);
-  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
-  const [highlight, setHighlight] = useState<Highlight[]>([]);
+  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [highlight, setHighlight] = useState<ProductHighlights[]>([]);
   const [mainImage, setMainImage] = useState<string>("");
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [specs, setSpecs] = useState<Spec[]>([]);
-  const [relatedProducts, setRelatedProducts] = useState<ProductPopulated[]>([]);
+  const [reviews, setReviews] = useState<Reviews[]>([]);
+  const [specs, setSpecs] = useState<ProductSpecifications[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isSpecsExpanded, setIsSpecsExpanded] = useState(false);
   const [displayName, setDisplayName] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const { addToCart } = useCart();
-  const { isAuthenticated } = useAuth();
 
   const formatCurrency = (price: number) => `${price.toLocaleString("vi-VN")} VNĐ`;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productRes] = await Promise.all([
-          fetch(`http://localhost:3000/api/products/${slug}`).then((res) => res.json()),
-        ]);
-        setProduct(productRes.product);
-        setVariants(productRes.product.productVariants || []);
-        setHighlight(productRes.product.productHighlights || []);
-        setReviews(productRes.product.reviews || []);
-        setSpecs(productRes.product.productSpecs || []);
-        setRelatedProducts(productRes.related || []);
+        const productRes = await apiRequest<{
+          data: { product: ProductDetail; related: Product[] };
+        }>(`${ENDPOINTS.product}/${slug}`);
+
+        const data = productRes.data.product;
+
+        setProduct(data);
+        setVariants(data.productVariants || []);
+        setSpecs(data.productSpecifications || []);
+        setHighlight(data.productHighlights || []);
+        setReviews(data.reviews || []);
+        setRelatedProducts(productRes.data.related || []);
       } catch (error) {
         console.error("Error fetching product detail:", error);
       }
     };
     if (slug) fetchData();
   }, [slug]);
+  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+  const breadcrumbItems = useMemo(() => {
+    if (!product) return [];
+
+    const categories = product.categoryId
+      ? [
+          {
+            name: capitalize(product.categoryId.name),
+            href: `/category/${product.categorySlug}`,
+          },
+        ]
+      : [];
+
+    return generateBreadcrumb(categories, product.name);
+  }, [product]);
 
   useEffect(() => {
     if (product && variants.length > 0) {
@@ -60,6 +89,13 @@ const ProductDetail: React.FC = () => {
     }
   }, [product, variants]);
 
+  useEffect(() => {
+    if (!initialized && selectedVariant?.sizes && selectedVariant.sizes.length > 0) {
+      setSelectedSize(selectedVariant.sizes[0].size);
+      setInitialized(true);
+    }
+  }, [selectedVariant, initialized]);
+
   if (!product)
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -70,66 +106,52 @@ const ProductDetail: React.FC = () => {
   const discountedPrice =
     product.sale && product.sale > 0 ? product.price - (product.price * product.sale) / 100 : null;
 
-  // Handle add to cart
   const handleAddToCart = async () => {
     if (!selectedSize) {
-      setError("Vui lòng chọn kích thước");
+      console.warn("⚠️ No selectedSize");
+      toast.warn("Vui lòng chọn kích thước");
       return;
     }
 
     if (quantity < 1) {
-      setError("Số lượng phải lớn hơn 0");
+      console.warn("⚠️ Invalid quantity:", quantity);
+      toast.warn("Số lượng không hợp lý");
       return;
     }
 
     if (!selectedVariant) {
-      setError("Không tìm thấy biến thể sản phẩm");
+      console.warn("⚠️ No selectedVariant");
+      toast.warn("Sản phẩm đang bị lỗi. Vui lòng báo admin để được hỗ trợ");
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     const newItem: Cart_Item = {
-      _id: "", // replace with a valid _id value
-      productId: selectedVariant.productId,
+      _id: selectedVariant._id,
+      productId: selectedVariant?.productId ?? "",
       variantId: selectedVariant._id,
-      name: product.name, // replace with a valid name value
-      image: product.image ?? "", // replace with a valid image value
-      color: selectedVariant.color, // replace with a valid color value
+      name: product.name,
+      price: discountedPrice ?? product?.price,
+      image: mainImage,
+      color: selectedVariant.color,
       size: selectedSize,
       quantity,
-      unit_price: discountedPrice ?? product?.price,
-      total_price: discountedPrice ?? product?.price * quantity,
       availableColors: [],
-      availableSizes: [],
-      price: 0,
+      availableSizes: variants
+        .filter((v) => v.color === selectedVariant.color)
+        .flatMap((v) => v.sizes.map((s) => s.size)),
+      unit_price: discountedPrice ?? product?.price,
+      total_price: (discountedPrice ?? product?.price) * quantity,
     };
 
     try {
-      if (isAuthenticated) {
-        // Nếu đã đăng nhập -> thêm vào DB qua API
-        await addToCart(newItem);
-      } else {
-        // Nếu chưa login -> lưu localStorage
-        const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
-        const existingIndex = localCart.findIndex(
-          (item: Cart_Item) => item.variantId === newItem.variantId && item.size === newItem.size
-        );
-
-        if (existingIndex > -1) {
-          localCart[existingIndex].quantity += quantity;
-        } else {
-          localCart.push(newItem);
-        }
-
-        localStorage.setItem("cart", JSON.stringify(localCart));
-      }
-
-      alert("Thêm vào giỏ hàng thành công");
+      await addToCart(newItem);
+      toast.success("Đã thêm sản phẩm vào giỏ hàng");
       setQuantity(1);
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      console.error("[handleAddToCart] Error adding to cart:", error);
+      toast.error("Không thể thêm sản phẩm vào giỏ hàng");
     } finally {
       setLoading(false);
     }
@@ -150,6 +172,7 @@ const ProductDetail: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      {breadcrumbItems.length > 0 && <Breadcrumb items={breadcrumbItems} />}
       {/* Phần trên: ảnh và thông tin */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Bên trái: main image + thumbnails */}
@@ -284,13 +307,6 @@ const ProductDetail: React.FC = () => {
               className="w-24 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200"
             />
           </div>
-
-          {/* Error message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-              {error}
-            </div>
-          )}
 
           <button
             onClick={handleAddToCart}

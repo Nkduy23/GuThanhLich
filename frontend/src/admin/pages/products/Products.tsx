@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Category, Product } from "../../../types";
+import type { Category, Product } from "@admin/types";
 import { useNavigate } from "react-router-dom";
 import { getErrorMessage } from "../../../utils/errorHandler";
 
@@ -40,9 +40,7 @@ const Products: React.FC = () => {
       .catch(() => {});
   }, []);
 
-  // Filter products
   const filteredProducts = products.filter((p) => {
-    // Category filter
     if (selectedCategory !== "all" && p.categoryId?._id !== selectedCategory) {
       return false;
     }
@@ -63,7 +61,6 @@ const Products: React.FC = () => {
 
     return true;
   });
-  console.log("hello");
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -195,6 +192,7 @@ const Products: React.FC = () => {
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
                 <select
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onChange={(e) => setStatusFilter(e.target.value as any)}
                   value={statusFilter}
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all bg-white"

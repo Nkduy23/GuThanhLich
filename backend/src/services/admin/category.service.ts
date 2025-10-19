@@ -71,7 +71,7 @@ export const updateCategory = async (id: string, data: any) => {
   }
 
   const existing = await Category.findOne({
-    _id: { $ne: id }, // loại trừ chính nó
+    _id: { $ne: id },
     $or: [{ name }, { slug }],
   });
 

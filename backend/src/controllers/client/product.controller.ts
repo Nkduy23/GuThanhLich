@@ -3,7 +3,7 @@ import {
   getActiveProducts,
   getProductBySlug,
   getProductById as getProductByIdService,
-  getProductByIdServiceTest,
+  getProductBatch,
   getRelatedProducts,
 } from "../../services/client/product.service";
 
@@ -27,7 +27,11 @@ export const getProductDetail = async (req: Request, res: Response): Promise<voi
 
     const related = await getRelatedProducts(product.categorySlug, product.slug);
 
-    res.json({ success: true, message: "Get product detail successfully", product, related });
+    res.json({
+      success: true,
+      message: "Get product detail successfully",
+      data: { product, related },
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -49,7 +53,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getBatchTest = async (req: Request, res: Response): Promise<void> => {
+export const getBatch = async (req: Request, res: Response): Promise<void> => {
   try {
     const { productIds } = req.body;
 
@@ -58,7 +62,7 @@ export const getBatchTest = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    const products = await getProductByIdServiceTest(productIds);
+    const products = await getProductBatch(productIds);
     res.json({ success: true, products });
   } catch (error: any) {
     console.error("Batch fetch error:", error);

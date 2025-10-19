@@ -1,4 +1,4 @@
-import type { Product } from "../../../types";
+import type { Product } from "@client/types";
 import CardProduct from "./CardProduct";
 import { useRef } from "react";
 

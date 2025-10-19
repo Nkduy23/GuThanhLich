@@ -13,7 +13,7 @@ export const getHomeData = async (req: Request, res: Response): Promise<void> =>
     res.json({
       success: true,
       message: "Fetched home data successfully",
-      data: { categoryProducts, parentCategories, blogs },
+      data: { parentCategories, categoryProducts, blogs },
     });
   } catch (error) {
     console.error("Error index renderHome:", error);

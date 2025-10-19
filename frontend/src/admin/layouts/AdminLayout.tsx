@@ -1,6 +1,6 @@
 import { Outlet, NavLink } from "react-router-dom";
-import AdminHeader from "../client/layout/AdminHeader";
-import AdminFooter from "../client/layout/AdminFooter";
+import AdminHeader from "./AdminHeader";
+import AdminFooter from "./AdminFooter";
 import { Home, Users, Package } from "lucide-react";
 
 const AdminLayout: React.FC = () => {

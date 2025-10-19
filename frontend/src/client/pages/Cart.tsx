@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
+import { toast } from "react-toastify";
 import CartRow from "../components/cart/CartRow";
 import CartTotal from "../components/cart/CartTotal";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContext";
+import { useCart } from "@context/cart/useCart";
+import { useAuth } from "@context/auth/useAuth";
+import { Breadcrumb, generateBreadcrumb } from "@utils/breadcrumb";
 
 const CartPage: React.FC = () => {
   const {
@@ -13,9 +15,11 @@ const CartPage: React.FC = () => {
     total,
     loading,
     removeItem,
+    removeAllItems,
     updateVariant,
     updateQuantity,
   } = useCart();
+
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -31,8 +35,17 @@ const CartPage: React.FC = () => {
   }, [isAuthenticated, fetchServerCart, hydrateLocalCartDetails]);
 
   const handleRemove = (id: string) => {
-    alert("Bạn có chắc muốn xóa sản phẩm ?");
-    removeItem(id);
+    if (window.confirm("Bạn có chắc muốn xóa sản phẩm ?")) {
+      removeItem(id);
+      toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
+    }
+  };
+
+  const handleRemoveAll = () => {
+    if (window.confirm("Bạn có chắc muốn xóa tất cả sản phẩm không ?")) {
+      removeAllItems();
+      toast.success("Đã xóa tất cả sản phẩm");
+    }
   };
 
   const handleQuantityChange = (id: string, quantity: number) => {
@@ -45,13 +58,16 @@ const CartPage: React.FC = () => {
 
   const handleCheckout = () => {
     if (cartItems.length === 0) {
-      alert("Giỏ hàng trống!");
+      toast.warn("Giỏ hàng trống!");
       return;
     }
+
     if (!isAuthenticated) {
-      navigate("/login");
+      toast.warn("Vui lòng đăng nhập để thanh toán");
+      navigate("/login", { state: { from: "/checkout" } });
       return;
     }
+
     navigate("/checkout");
   };
 
@@ -60,14 +76,17 @@ const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-2 text-gray-900">Giỏ Hàng Của Bạn</h1>
-        <p className="text-gray-600 mb-8">({cartItems.length} sản phẩm)</p>
+    <div className="min-h-screen bg-gray-50 my-4">
+      <div className="mx-auto max-w-7xl px-4">
+        <Breadcrumb items={generateBreadcrumb([{ name: "Giỏ hàng", href: "/cart" }])} />
+        <h1 className="text-2xl block font-bold mb-2 text-gray-900">Giỏ Hàng Của Bạn</h1>
 
         {cartItems.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <p className="text-gray-600 mb-4">Giỏ hàng trống.</p>
+          <div className=" min-full bg-white rounded-lg shadow p-12 text-center">
+            <div className="flex items-center justify-center flex-col">
+              <p className="text-gray-600 mb-4">Giỏ hàng trống.</p>
+              <img src="/icons/empty-cart.png" alt="Giỏ hàng trống"></img>
+            </div>
             <a href="/" className="text-blue-600 hover:text-blue-700 font-medium">
               Tiếp tục mua sắm
             </a>
@@ -75,11 +94,20 @@ const CartPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Cart Items */}
+            <p className="text-gray-600 mb-2">({cartItems.length} sản phẩm)</p>
+            <div className="text-right lg:col-span-1">
+              <button
+                onClick={handleRemoveAll}
+                className="text-sm bg-red-600 text-white px-2 py-1 rounded-lg hover:bg-red-700 transition font-medium shadow-sm"
+              >
+                Xóa tất cả
+              </button>
+            </div>
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full border-separate border-spacing-y-2">
                   <thead>
-                    <tr className="bg-gray-100 border-b">
+                    <tr className="bg-gray-100 border-b border-gray-200">
                       <th className="py-4 px-4 text-left text-sm font-semibold text-gray-900">
                         Hình ảnh
                       </th>
@@ -107,15 +135,17 @@ const CartPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {cartItems.map((item) => (
-                      <CartRow
-                        key={item._id}
-                        item={item}
-                        onRemove={handleRemove}
-                        onQuantityChange={handleQuantityChange}
-                        onVariantChange={handleVariantChange}
-                      />
-                    ))}
+                    {cartItems.map((item) => {
+                      return (
+                        <CartRow
+                          key={item._id}
+                          item={item}
+                          onRemove={handleRemove}
+                          onQuantityChange={handleQuantityChange}
+                          onVariantChange={handleVariantChange}
+                        />
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

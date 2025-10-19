@@ -13,6 +13,10 @@ export const generateToken = (userId: string, role: string): string => {
   return jwt.sign({ id: userId, role }, process.env.JWT_SECRET!, { expiresIn: "1h" });
 };
 
+export const generateResetToken = () => {
+  return crypto.randomBytes(20).toString("hex");
+};
+
 export const verifyToken = (token: string) => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET!);
@@ -88,11 +92,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS, // App password (không phải password thường)
   },
 });
-
-// Generate reset token
-export const generateResetToken = () => {
-  return crypto.randomBytes(32).toString("hex");
-};
 
 // Save token to user
 export const saveResetToken = async (userId: string, token: string) => {

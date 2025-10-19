@@ -1,29 +1,39 @@
-import { Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ClientRoutes from "./routes/ClientRoutes";
 import AdminRoutes from "./routes/AdminRoutes";
 import ScrollToTop from "./client/components/common/ScrollToTop";
-import SkeletonLoader from "./client/components/common/SkeletonLoader";
-import { AuthProvider } from "./client/context/AuthContext";
-import { CartProvider } from "./client/context/CartContext";
-
+import LoadingOverlay from "./client/components/common/LoadingOverlay";
+import { AuthProvider } from "@context/auth/AuthProvider";
+import { CartProvider } from "@context/cart/CartProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const App: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <Suspense fallback={<SkeletonLoader />}>
-        <AuthProvider>
-          <CartProvider>
-            <Routes>
-              <Route path="/*" element={<ClientRoutes />} />
-              <Route path="/admin/*" element={<AdminRoutes />} />
-            </Routes>
-          </CartProvider>
-        </AuthProvider>
-      </Suspense>
+      <AuthProvider>
+        <CartProvider>
+          <div className="relative">
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="/*" element={<ClientRoutes />} />
+                <Route path="/admin/*" element={<AdminRoutes />} />
+              </Routes>
+            </Suspense>
+
+            <LoadingOverlay visible={loading} />
+          </div>
+        </CartProvider>
+      </AuthProvider>
 
       <ToastContainer
         position="top-right"

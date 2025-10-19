@@ -1,38 +1,15 @@
-import { useEffect, useState } from "react";
+// admin/ProductFormPage.tsx (updated for file uploads)
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import type { Category, Product } from "../../../types";
-
-interface Brand {
-  _id: string;
-  name: string;
-}
-
-interface ProductSpec {
-  _id?: string;
-  key: string;
-  value: string;
-}
-
-interface ProductHighlight {
-  _id?: string;
-  title: string;
-  description: string;
-}
-
-interface Size {
-  size: string;
-  quantity: number;
-}
-
-interface ProductVariant {
-  _id?: string;
-  color: string;
-  colorNameVi: string;
-  sizes: Size[];
-  images: string[];
-  is_active: boolean;
-  variantName?: string;
-}
+import type {
+  Category,
+  ProductForm,
+  ProductVariant,
+  ProductSpecifications,
+  ProductHighlights,
+  Brand,
+  Size,
+} from "@admin/types";
 
 // Common size options
 const SIZE_OPTIONS = ["S", "M", "L", "XL", "XXL", "XXXL"];
@@ -68,11 +45,13 @@ const SPEC_KEY_SUGGESTIONS = [
 const ProductFormPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [form, setForm] = useState<Partial<Product>>({});
+  const [form, setForm] = useState<Partial<ProductForm>>({});
   const [loading, setLoading] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]); // Track selected files for upload
 
   // Fetch categories
   useEffect(() => {
@@ -99,6 +78,8 @@ const ProductFormPage: React.FC = () => {
         const productData = data.product || {};
         setForm({
           ...productData,
+          categoryId: productData.categoryId?._id || "",
+          brandId: productData.brandId?._id || "",
           productSpecs: productData.productSpecs || [],
           productHighlights: productData.productHighlights || [],
           productVariants: productData.productVariants || [],
@@ -134,8 +115,9 @@ const ProductFormPage: React.FC = () => {
   const updateSpec = (index: number, field: "key" | "value", value: string) => {
     setForm((prev) => ({
       ...prev,
-      productSpecs: (prev.productSpecs || []).map((spec: ProductSpec, i: number) =>
-        i === index ? { ...spec, [field]: value } : spec
+      productSpecifications: (prev.productSpecifications || []).map(
+        (spec: ProductSpecifications, i: number) =>
+          i === index ? { ...spec, [field]: value } : spec
       ),
     }));
   };
@@ -143,14 +125,16 @@ const ProductFormPage: React.FC = () => {
   const addSpec = () => {
     setForm((prev) => ({
       ...prev,
-      productSpecs: [...(prev.productSpecs || []), { key: "", value: "" }],
+      productSpecifications: [...(prev.productSpecifications || []), { key: "", value: "" }],
     }));
   };
 
   const removeSpec = (index: number) => {
     setForm((prev) => ({
       ...prev,
-      productSpecs: (prev.productSpecs || []).filter((_: any, i: number) => i !== index),
+      productSpecifications: (prev.productSpecifications || []).filter(
+        (_: any, i: number) => i !== index
+      ),
     }));
   };
 
@@ -159,7 +143,7 @@ const ProductFormPage: React.FC = () => {
     setForm((prev) => ({
       ...prev,
       productHighlights: (prev.productHighlights || []).map(
-        (highlight: ProductHighlight, i: number) =>
+        (highlight: ProductHighlights, i: number) =>
           i === index ? { ...highlight, [field]: value } : highlight
       ),
     }));
@@ -237,17 +221,30 @@ const ProductFormPage: React.FC = () => {
     }));
   };
 
-  const addImageToVariant = (variantIndex: number, imageUrl: string) => {
-    if (!imageUrl.trim()) return;
-    setForm((prev) => ({
-      ...prev,
-      productVariants: (prev.productVariants || []).map(
-        (variant: ProductVariant, vIndex: number) => {
-          if (vIndex !== variantIndex) return variant;
-          return { ...variant, images: [...(variant.images || []), imageUrl] };
+  // Updated: Handle file selection (appends to first variant for simplicity; enhance for per-variant if needed)
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
+      // For now, append file names as placeholders; actual paths come from backend
+      setForm((prev) => {
+        const variants = prev.productVariants || [];
+        if (variants.length > 0) {
+          const firstVariant = variants[0];
+          const placeholderImages = newFiles.map((f) => URL.createObjectURL(f)); // Temp URL for preview
+          return {
+            ...prev,
+            productVariants: [
+              { ...firstVariant, images: [...(firstVariant.images || []), ...placeholderImages] },
+              ...variants.slice(1),
+            ],
+          };
         }
-      ),
-    }));
+        return prev;
+      });
+      // Clear input
+      e.target.value = "";
+    }
   };
 
   const removeImageFromVariant = (variantIndex: number, imageIndex: number) => {
@@ -261,6 +258,8 @@ const ProductFormPage: React.FC = () => {
         }
       ),
     }));
+    // Also remove from selected files if it's a preview URL
+    setSelectedFiles((prev) => prev.filter((_, idx) => idx !== imageIndex));
   };
 
   const addVariant = () => {
@@ -280,7 +279,7 @@ const ProductFormPage: React.FC = () => {
     }));
   };
 
-  // Handle submit
+  // Handle submit with FormData for files
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -292,14 +291,19 @@ const ProductFormPage: React.FC = () => {
 
       const submitData = {
         ...form,
-        categoryId: form.categoryId?._id || form.categoryId,
-        brandId: form.brandId?._id || form.brandId,
+        categoryId: form.categoryId,
+        brandId: form.brandId,
       };
+
+      const formData = new FormData();
+      formData.append("productData", JSON.stringify(submitData));
+      selectedFiles.forEach((file) => {
+        formData.append("variantImages", file);
+      });
 
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(submitData),
+        body: formData, // No Content-Type, let browser set multipart
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
@@ -309,6 +313,7 @@ const ProductFormPage: React.FC = () => {
       alert("Error saving product");
     } finally {
       setLoading(false);
+      setSelectedFiles([]); // Clear after submit
     }
   };
 
@@ -418,7 +423,7 @@ const ProductFormPage: React.FC = () => {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
                 <select
                   name="categoryId"
-                  value={form.categoryId?._id || form.categoryId || ""}
+                  value={form.categoryId}
                   onChange={handleChange}
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all bg-white"
                   required
@@ -436,7 +441,7 @@ const ProductFormPage: React.FC = () => {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Brand *</label>
                 <select
                   name="brandId"
-                  value={form.brandId?._id || form.brandId || ""}
+                  value={form.brandId}
                   onChange={handleChange}
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all bg-white"
                   required
@@ -501,48 +506,52 @@ const ProductFormPage: React.FC = () => {
               Product Specifications
             </h2>
             <div className="space-y-4">
-              {(form.productSpecs || []).map((spec: ProductSpec, index: number) => (
-                <div
-                  key={spec._id || index}
-                  className="border-2 border-gray-200 rounded-xl p-5 hover:border-green-300 transition-colors"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Key</label>
-                      <input
-                        type="text"
-                        list={`spec-keys-${index}`}
-                        value={spec.key || ""}
-                        onChange={(e) => updateSpec(index, "key", e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-200"
-                        placeholder="e.g., Chất liệu"
-                      />
-                      <datalist id={`spec-keys-${index}`}>
-                        {SPEC_KEY_SUGGESTIONS.map((key) => (
-                          <option key={key} value={key} />
-                        ))}
-                      </datalist>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Value</label>
-                      <input
-                        type="text"
-                        value={spec.value || ""}
-                        onChange={(e) => updateSpec(index, "value", e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-200"
-                        placeholder="e.g., Cotton 100%"
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeSpec(index)}
-                    className="mt-3 text-red-600 hover:text-red-800 font-medium text-sm"
+              {(form.productSpecifications || []).map(
+                (spec: ProductSpecifications, index: number) => (
+                  <div
+                    key={spec._id || index}
+                    className="border-2 border-gray-200 rounded-xl p-5 hover:border-green-300 transition-colors"
                   >
-                    × Remove Specification
-                  </button>
-                </div>
-              ))}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Key</label>
+                        <input
+                          type="text"
+                          list={`spec-keys-${index}`}
+                          value={spec.key || ""}
+                          onChange={(e) => updateSpec(index, "key", e.target.value)}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                          placeholder="e.g., Chất liệu"
+                        />
+                        <datalist id={`spec-keys-${index}`}>
+                          {SPEC_KEY_SUGGESTIONS.map((key) => (
+                            <option key={key} value={key} />
+                          ))}
+                        </datalist>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Value
+                        </label>
+                        <input
+                          type="text"
+                          value={spec.value || ""}
+                          onChange={(e) => updateSpec(index, "value", e.target.value)}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                          placeholder="e.g., Cotton 100%"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeSpec(index)}
+                      className="mt-3 text-red-600 hover:text-red-800 font-medium text-sm"
+                    >
+                      × Remove Specification
+                    </button>
+                  </div>
+                )
+              )}
               <button
                 type="button"
                 onClick={addSpec}
@@ -562,7 +571,7 @@ const ProductFormPage: React.FC = () => {
               Product Highlights
             </h2>
             <div className="space-y-4">
-              {(form.productHighlights || []).map((highlight: ProductHighlight, index: number) => (
+              {(form.productHighlights || []).map((highlight: ProductHighlights, index: number) => (
                 <div
                   key={highlight._id || index}
                   className="border-2 border-gray-200 rounded-xl p-5 hover:border-purple-300 transition-colors"
@@ -616,6 +625,29 @@ const ProductFormPage: React.FC = () => {
               </span>
               Product Variants (Colors & Sizes)
             </h2>
+            {/* File Upload Trigger */}
+            <div className="mb-4 p-4 bg-blue-50 rounded-xl">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full border-2 border-dashed border-blue-300 rounded-xl px-4 py-3 text-blue-600 hover:bg-blue-50 font-medium transition-colors"
+              >
+                📁 Upload Images (will add to first variant)
+              </button>
+              {selectedFiles.length > 0 && (
+                <p className="text-sm text-blue-600 mt-2">
+                  {selectedFiles.length} file(s) selected
+                </p>
+              )}
+            </div>
             <div className="space-y-6">
               {(form.productVariants || []).map((variant: ProductVariant, vIndex: number) => (
                 <div
@@ -661,7 +693,7 @@ const ProductFormPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Images Section */}
+                  {/* Images Section - Updated for file previews */}
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-3">
                       Product Images
@@ -690,19 +722,6 @@ const ProductFormPage: React.FC = () => {
                           </button>
                         </div>
                       ))}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const url = prompt("Enter image URL:");
-                          if (url) addImageToVariant(vIndex, url);
-                        }}
-                        className="border-2 border-dashed border-gray-300 rounded-lg aspect-square flex items-center justify-center hover:border-orange-400 hover:bg-orange-50 transition-colors w-full h-full"
-                      >
-                        <div className="text-center">
-                          <span className="text-3xl text-gray-400">+</span>
-                          <p className="text-xs text-gray-500 mt-1">Add Image</p>
-                        </div>
-                      </button>
                     </div>
                   </div>
 

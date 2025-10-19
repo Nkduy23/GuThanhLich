@@ -12,6 +12,7 @@ function useAuthForm<T>(url: string, onSuccess?: (data: T) => void) {
 
   const handleSubmit = async (body: unknown) => {
     setLoading(true);
+
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -22,10 +23,8 @@ function useAuthForm<T>(url: string, onSuccess?: (data: T) => void) {
 
       const data: ApiResponse<T> = await response.json();
 
-      // ✅ Hiển thị toast từ BE message
       showToast(response, data);
 
-      // ✅ Nếu BE trả success thì chạy callback (VD: redirect)
       if (response.ok && data.success) {
         onSuccess?.(data.data as T);
       }

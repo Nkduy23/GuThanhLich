@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import React from "react";
-import type { Blog } from "../../../types";
+import type { Blog } from "@client/types";
 
 interface BlogSectionProps {
   blogs: Blog[];

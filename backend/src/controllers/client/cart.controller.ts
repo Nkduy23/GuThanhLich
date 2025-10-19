@@ -5,13 +5,46 @@ import {
   getCartItems,
   updateCartItemService,
   removeCartItem as removeCartItemService,
+  removeAllItemsService,
   AddToCartInput,
   mergeCartService,
   getCartItemsService,
-} from "../../services/client/cart.service"; // Path điều chỉnh
+} from "../../services/client/cart.service";
+
+export const getCart = async (req: Request, res: Response) => {
+  const userId = (req.user as any).id;
+
+  try {
+    const result = await getCartItems(userId);
+    return res.json({
+      success: true,
+      data: {
+        cart: result.items.map((item) => ({
+          _id: item._id,
+          productId: item.productId,
+          name: item.name,
+          image: item.image,
+          color: item.color,
+          size: item.size,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          total_price: item.total_price,
+          availableColors: item.availableColors || [],
+          availableSizes: item.availableSizes || [],
+          appliedVoucher: item.appliedVoucher,
+        })),
+      },
+      totalItems: result.totalItems,
+      totalPrice: result.totalPrice,
+    });
+  } catch (error) {
+    console.error("Get cart error:", error);
+    return res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
 
 export const addToCart = async (req: Request, res: Response) => {
-  const userId = (req.user as any).id; // Từ token
+  const userId = (req.user as any).id;
   const input: AddToCartInput = req.body;
 
   if (!input.productId || !input.variantId || !input.size || !input.quantity || !input.unit_price) {
@@ -35,37 +68,6 @@ export const addToCart = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Add to cart error:", error);
-    return res.status(500).json({ success: false, message: "Lỗi server" });
-  }
-};
-
-export const getCart = async (req: Request, res: Response) => {
-  const userId = (req.user as any).id;
-
-  try {
-    const result = await getCartItems(userId);
-    return res.json({
-      success: true,
-      data: {
-        cart: result.items.map((item) => ({
-          _id: item.id,
-          productId: item.productId,
-          name: item.name,
-          image: item.image,
-          color: item.color,
-          size: item.size,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          total_price: item.unit_price * item.quantity,
-          availableColors: item.availableColors || [],
-          availableSizes: item.availableSizes || [],
-        })),
-      },
-      totalItems: result.totalItems,
-      totalPrice: result.totalPrice,
-    });
-  } catch (error) {
-    console.error("Get cart error:", error);
     return res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
@@ -107,7 +109,7 @@ export const updateCartItem = async (req: Request, res: Response) => {
 // Remove item
 export const removeCartItem = async (req: Request, res: Response) => {
   const userId = (req.user as any).id;
-  const { id } = req.params; // Đã là id, ok
+  const { id } = req.params;
 
   try {
     const result = await removeCartItemService(userId, id);
@@ -126,6 +128,28 @@ export const removeCartItem = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Remove cart error:", error);
+    return res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
+
+// Remove all
+export const removeAllItems = async (req: Request, res: Response) => {
+  const userId = (req.user as any).id;
+  console.log(userId);
+  try {
+    const result = await removeAllItemsService(userId);
+
+    // Refresh cart
+    const { items, totalItems, totalPrice } = await getCartItems(userId);
+    return res.json({
+      success: true,
+      message: "Xóa tất cả sản phẩm trong giỏ hàng thành công",
+      cart: items,
+      totalItems,
+      totalPrice,
+    });
+  } catch (error) {
+    console.error("Remove all items error:", error);
     return res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };

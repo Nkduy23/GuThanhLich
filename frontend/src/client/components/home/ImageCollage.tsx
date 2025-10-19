@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import type { CollageImage } from "../../data/imageCollageData";
+import type { CollageImage } from "@client/data/imageCollageData";
 
 interface ImageCollageProps {
   images: CollageImage[];

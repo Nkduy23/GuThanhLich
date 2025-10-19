@@ -9,16 +9,25 @@ interface FooterProps {
   certifications: string[];
 }
 
-const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, policyLinks, paymentIcons, certifications }) => {
+const Footer: React.FC<FooterProps> = ({
+  socialLinks,
+  contactInfo,
+  aboutLinks,
+  policyLinks,
+  paymentIcons,
+  certifications,
+}) => {
   return (
     <footer className="bg-gray-900 text-gray-300 py-16">
-      <div className="mx-auto max-w-6xl px-4 container">
+      <div className="mx-auto max-w-7xl px-4 container">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="flex flex-col space-y-8">
             <div className="space-y-4">
               <h2 className="text-3xl font-bold text-white">GuThanhLich</h2>
-              <p className="text-gray-400 text-sm leading-relaxed">Electro – Nền tảng mua sắm thiết bị điện tử tại Việt Nam, giúp người dân quốc.</p>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Electro – Nền tảng mua sắm thiết bị điện tử tại Việt Nam, giúp người dân quốc.
+              </p>
             </div>
             {/* Social Links */}
             <div className="space-y-4">
@@ -84,7 +93,12 @@ const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, p
               <h3 className="text-base font-bold uppercase text-white mb-4">HỖ TRỢ THANH TOÁN</h3>
               <div className="grid grid-cols-4 gap-2 mb-4">
                 {paymentIcons.map((icon, index) => (
-                  <img key={index} src={`/icons/${icon}`} alt="Payment method" className="w-full object-contain" />
+                  <img
+                    key={index}
+                    src={`/icons/${icon}`}
+                    alt="Payment method"
+                    className="w-full object-contain"
+                  />
                 ))}
               </div>
             </div>
@@ -92,7 +106,12 @@ const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, p
               <h3 className="text-base font-bold uppercase text-white mb-4">CHỨNG NHẬN</h3>
               <div className="flex gap-2">
                 {certifications.map((cert, index) => (
-                  <img key={index} src={`/icons/${cert}`} alt="Certification" className="w-16 h-10 object-contain" />
+                  <img
+                    key={index}
+                    src={`/icons/${cert}`}
+                    alt="Certification"
+                    className="w-16 h-10 object-contain"
+                  />
                 ))}
               </div>
             </div>
@@ -105,14 +124,21 @@ const Footer: React.FC<FooterProps> = ({ socialLinks, contactInfo, aboutLinks, p
               <p className="font-bold text-white text-xs">© Bản quyền thuộc về Electro</p>
               <p className="font-medium text-white text-xs">Công ty TNHH Electro Việt Nam</p>
               <p className="text-gray-400 text-xs leading-tight">
-                Giấy chứng nhận đăng ký kinh doanh số: 0315667679 do Sở Kế hoạch & Đầu tư TP.HCM cấp ngày 22/08/2025
+                Giấy chứng nhận đăng ký kinh doanh số: 0315667679 do Sở Kế hoạch & Đầu tư TP.HCM cấp
+                ngày 22/08/2025
               </p>
               <p className="text-gray-400 text-xs">Góp ý & khiếu nại: ceo@electro.com</p>
               <p className="text-gray-400 text-xs">Hotline: 1900 6777</p>
-              <p className="text-gray-400 text-xs">Địa chỉ tại số: 50/22 Gò Dầu, Phường Tân Quý, Quận Tân Phú, TP. Hồ Chí Minh</p>
+              <p className="text-gray-400 text-xs">
+                Địa chỉ tại số: 50/22 Gò Dầu, Phường Tân Quý, Quận Tân Phú, TP. Hồ Chí Minh
+              </p>
             </div>
             <div className="flex-shrink-0">
-              <img src="/icons/da_thong_bao_bo_cong_thuong_icon.svg" alt="Bộ Công Thương Certification" className="w-32 h-20 object-contain" />
+              <img
+                src="/icons/da_thong_bao_bo_cong_thuong_icon.svg"
+                alt="Bộ Công Thương Certification"
+                className="w-32 h-20 object-contain"
+              />
             </div>
           </div>
         </div>

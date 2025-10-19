@@ -7,9 +7,9 @@ import User from "../../models/User"; // Để validate userId
 
 // Interface cho add/update input
 export interface AddToCartInput {
-  unit_price: any;
   productId: string;
   variantId: string;
+  unit_price: any;
   size: string;
   quantity: number;
 }
@@ -31,7 +31,6 @@ interface LocalCartItem {
   image?: string;
 }
 
-// Validate size available
 export const validateSizeAvailability = async (
   variantId: string,
   size: string,
@@ -44,13 +43,15 @@ export const validateSizeAvailability = async (
 
   const sizeObj = variant.sizes.find((s: any) => s.size === size);
   if (!sizeObj || sizeObj.quantity < quantity) {
-    return { valid: false, message: `Size ${size} không đủ hàng (còn ${sizeObj?.quantity || 0})` };
+    return {
+      valid: false,
+      message: `Size ${size} không đủ hàng (chỉ còn ${sizeObj?.quantity || 0}) sản phẩm`,
+    };
   }
 
   return { valid: true };
 };
 
-// Add to cart logic (giữ nguyên, nhưng add unit_price từ product nếu cần)
 export const addToCartService = async (userId: string, input: AddToCartInput) => {
   const { productId, variantId, size, quantity, unit_price } = input;
 
@@ -88,60 +89,67 @@ export const addToCartService = async (userId: string, input: AddToCartInput) =>
   return { success: true, cartItem };
 };
 
-// Get cart items (populate product/variant info) – Add availableColors/Sizes, use saved unit_price
 export const getCartItems = async (userId: string) => {
   const items = await CartItem.find({ userId })
     .populate({
       path: "productId",
-      select: "name price sale slug images productVariants", // Fix: add productVariants for populate
+      select: "name price sale slug images productVariants",
       populate: {
-        // New: Populate variants của product để lấy availableColors
-        path: "productVariants", // Giả sử Product schema có productVariants: [ObjectId ref ProductVariant]
+        path: "productVariants",
         model: "ProductVariant",
-        match: { is_active: true }, // Chỉ active variants
+        match: { is_active: true },
       },
     })
-    .populate("variantId", "color images sizes"); // Giữ nguyên
+    .populate("variantId", "color images sizes");
 
   const transformed = await Promise.all(
     items.map(async (item: any) => {
-      // Async vì populate
       const product = item.productId;
       const variant = item.variantId;
 
-      // Fix: Use saved unit_price (lock at add/merge/update time)
-      // No refetch finalPrice here
-
-      // New: Available colors từ tất cả variants active của product
       const availableColors =
         product.productVariants?.map((v: any) => ({
           color: v.color,
           variantId: v._id.toString(),
         })) || [];
 
-      // New: Available sizes từ variant hiện tại (filter stock > 0)
       const availableSizes =
         variant?.sizes?.filter((s: any) => s.quantity > 0).map((s: any) => s.size) || [];
 
+      const appliedVoucher = item.appliedVoucher
+        ? {
+            code: item.appliedVoucher.code,
+            type: item.appliedVoucher.type,
+            discountAmount: Number(item.appliedVoucher.discountAmount) || 0,
+          }
+        : null;
+
+      let adjustedTotalPrice = Number(item.unit_price) * Number(item.quantity);
+
+      if (appliedVoucher) {
+        adjustedTotalPrice -= appliedVoucher.discountAmount;
+      }
+
       return {
-        id: item._id.toString(), // Consistent với controller map
+        _id: item._id.toString(),
         name: product.name,
-        unit_price: item.unit_price, // Fix: saved
-        quantity: item.quantity,
+        unit_price: Number(item.unit_price),
+        quantity: Number(item.quantity),
         size: item.size,
         color: variant?.color,
         image: variant?.images?.[0] || product.images?.[0],
         variantId: variant?._id.toString(),
         productId: product._id.toString(),
-        // New fields
+        total_price: adjustedTotalPrice,
         availableColors,
         availableSizes,
+        appliedVoucher,
       };
     })
   );
 
-  const totalItems = transformed.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = transformed.reduce((sum, item) => sum + item.unit_price * item.quantity, 0); // Fix: use unit_price
+  const totalItems = transformed.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+  const totalPrice = transformed.reduce((sum, item) => sum + Number(item.total_price || 0), 0);
 
   return { success: true, items: transformed, totalItems, totalPrice };
 };
@@ -153,6 +161,13 @@ export const updateCartItemService = async (
   cartItemId: string,
   updates: UpdateCartInput
 ) => {
+  // ✅ Validate: Kiểm tra cartItemId là valid ObjectId trước query
+  if (!mongoose.isValidObjectId(cartItemId)) {
+    return { success: false, message: "ID item không hợp lệ (phải là ObjectId từ server)" };
+  }
+
+  console.log("Updating cartItemId:", cartItemId); // Debug
+
   const cartItem = await CartItem.findOne({ _id: cartItemId, userId });
   if (!cartItem) {
     return { success: false, message: "Item không tồn tại" };
@@ -223,6 +238,10 @@ export const removeCartItem = async (userId: string, cartItemId: string) => {
     return { success: false, message: "Item không tồn tại" };
   }
   return { success: true };
+};
+
+export const removeAllItemsService = async (userId: string) => {
+  return await CartItem.deleteMany({ userId });
 };
 
 /**

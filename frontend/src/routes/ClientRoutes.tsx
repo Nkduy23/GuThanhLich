@@ -1,20 +1,20 @@
 import { Route, Routes } from "react-router-dom";
 import { lazy } from "react";
-import MainLayout from "../layouts/MainLayout";
+import MainLayout from "@client/layouts/MainLayout";
 import ProtectedRoute from "./ProtectedRoute";
-import NotFoundPage from "../client/pages/NotFoundPage";
+import NotFoundPage from "@client/pages/NotFound";
 
 const Slider = lazy(() => import("../client/components/common/Slider"));
 const Home = lazy(() => import("../client/pages/Home"));
-const CategoryPage = lazy(() => import("../client/pages/CategoryPage"));
+const LoginPage = lazy(() => import("../client/pages/Login"));
+const ProfilePage = lazy(() => import("../client/pages/Profile"));
+const RegisterPage = lazy(() => import("../client/pages/Register"));
+const ForgotPage = lazy(() => import("../client/pages/Forgot"));
+const ResetPasswordPage = lazy(() => import("../client/pages/ResetPassword"));
+const CartPage = lazy(() => import("../client/pages/Cart"));
+const CategoryPage = lazy(() => import("../client/pages/Category"));
 const ProductDetail = lazy(() => import("../client/pages/ProductDetail"));
-const Checkout = lazy(() => import("../client/pages/CheckoutPage"));
-const LoginPage = lazy(() => import("../client/pages/LoginPage"));
-const RegisterPage = lazy(() => import("../client/pages/RegisterPage"));
-const ForgotPage = lazy(() => import("../client/pages/ForgotPage"));
-const ResetPasswordPage = lazy(() => import("../client/pages/ResetPasswordPage"));
-const ProfilePage = lazy(() => import("../client/pages/ProfilePage"));
-const CartPage = lazy(() => import("../client/pages/CartPage"));
+const Checkout = lazy(() => import("../client/pages/Checkout"));
 
 const ClientRoutes: React.FC = () => {
   return (
@@ -42,7 +42,6 @@ const ClientRoutes: React.FC = () => {
           <Route path="/checkout" element={<Checkout />} />
         </Route>
 
-        {/* ✅ Catch all routes sai ở client */}
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

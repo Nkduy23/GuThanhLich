@@ -1,5 +1,5 @@
 import { Bell, LogOut, User } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@context/auth/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const AdminHeader: React.FC = () => {

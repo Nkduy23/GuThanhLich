@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Cart_Item } from "../types";
-import { useAuth } from "../client/context/AuthContext";
+import { useAuth } from "../client/context/auth/AuthContext";
 
 export const useCart = () => {
   const [cartItems, setCartItems] = useState<Cart_Item[]>([]);

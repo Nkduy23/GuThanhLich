@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import { ENDPOINTS } from "@api/endpoints";
 import useAuthForm from "../../../hooks/useAuthForm";
 
 interface RegisterFormProps {
@@ -13,11 +15,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  const { loading, handleSubmit } = useAuthForm(
-    "http://localhost:3000/api/auth/register",
-    onSuccess
-  );
+  const { loading, handleSubmit } = useAuthForm(ENDPOINTS.register, onSuccess);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,31 +87,47 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
             required
           />
         </div>
-        <div className="mb-6">
+        <div className="mb-6 relative">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
             Mật khẩu
           </label>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-10 text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
         </div>
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+
+        {/* Nhập lại mật khẩu */}
+        <div className="mb-6 relative">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
             Nhập lại mật khẩu
           </label>
           <input
-            type="password"
+            type={showConfirm ? "text" : "password"}
             id="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowConfirm(!showConfirm)}
+            className="absolute right-3 top-10 text-gray-500 hover:text-gray-700"
+          >
+            {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
         </div>
         <button
           type="submit"
@@ -120,8 +137,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
           {loading ? "Đang xử lý..." : "Đăng Ký"}
         </button>
       </form>
-      <div className="mt-4 text-center">
-        <Link to="/login" className="text-blue-600 hover:underline">
+      <div className="mt-6 text-center">
+        <Link
+          to="/login"
+          className="text-blue-600 font-medium hover:text-blue-800 hover:underline transition-colors duration-200"
+        >
           Đã có tài khoản? Đăng nhập
         </Link>
       </div>

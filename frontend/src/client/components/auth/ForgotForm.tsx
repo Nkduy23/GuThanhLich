@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { ENDPOINTS } from "@api/endpoints";
 import useAuthForm from "../../../hooks/useAuthForm";
 
 interface ForgotFormProps {
@@ -9,10 +10,7 @@ interface ForgotFormProps {
 const ForgotForm: React.FC<ForgotFormProps> = ({ onSuccess }) => {
   const [email, setEmail] = useState("");
 
-  const { loading, handleSubmit } = useAuthForm(
-    "http://localhost:3000/api/auth/forgot-password",
-    onSuccess
-  );
+  const { loading, handleSubmit } = useAuthForm(ENDPOINTS.forgot, onSuccess);
 
   return (
     <>
@@ -44,7 +42,10 @@ const ForgotForm: React.FC<ForgotFormProps> = ({ onSuccess }) => {
         </button>
       </form>
       <div className="mt-4 text-center">
-        <Link to="/login" className="text-blue-600 hover:underline">
+        <Link
+          to="/login"
+          className="text-blue-600 font-medium hover:text-blue-800 hover:underline transition-colors duration-200"
+        >
           Quay lại đăng nhập
         </Link>
       </div>

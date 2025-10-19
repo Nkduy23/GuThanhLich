@@ -3,13 +3,13 @@ import {
   getProduct,
   getProductDetail,
   getProductById,
-  getBatchTest,
+  getBatch,
 } from "../../controllers/client/product.controller";
 
 const router = Router();
 
 router.get("/", getProduct); // Chưa sài
-router.post("/batch", getBatchTest);
+router.post("/batch", getBatch);
 router.get("/:slug", getProductDetail);
 router.get("/id/:id", getProductById);
 

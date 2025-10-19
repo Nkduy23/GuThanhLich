@@ -1,10 +1,11 @@
+// admin/product.service.ts (no major changes needed, as handling is in controller; but ensure images are strings/paths)
 import { Product, ProductSpec, ProductHighlight, ProductVariant } from "../../models";
 
 export const getProducts = async () => {
   const products = await Product.find()
     .select("_id name slug price sale image is_active brandSlug categoryId")
     .populate("categoryId", "name")
-    .populate("productVariants", "sizes images") // có mảng sizes bên trong
+    .populate("productVariants", "sizes images")
     .lean();
 
   const processed = products.map((p) => {
@@ -21,10 +22,16 @@ export const getProducts = async () => {
     const variants = (p.productVariants as any[]) || [];
     const firstVariantImage = variants[0]?.images?.[0] || null;
 
+    const cleanedVariants = variants.map((v) => {
+      const { images, ...rest } = v;
+      return rest;
+    });
+
     const finalPrice = p.sale && p.sale > 0 ? Math.round(p.price * (1 - p.sale / 100)) : p.price;
 
     return {
       ...p,
+      productVariants: cleanedVariants,
       finalPrice,
       totalStock,
       image: firstVariantImage,
@@ -40,7 +47,7 @@ export const getProductById = async (id: string) => {
     .populate("categoryId", "name")
     .populate("brandId", "name")
     .populate("productVariants")
-    .populate("productSpecs")
+    .populate("productSpecifications")
     .populate("productHighlights")
     .lean();
 };

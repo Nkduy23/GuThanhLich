@@ -1,7 +1,7 @@
 import Nav from "./Nav";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext";
+import { useAuth } from "@context/auth/useAuth";
+import { useCart } from "@context/cart/useCart";
 
 const Header: React.FC = () => {
   const { role } = useAuth();
@@ -9,7 +9,7 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-white text-black">
-      <div className="mx-auto max-w-6xl px-4 flex items-center justify-between py-4">
+      <div className="mx-auto max-w-7xl px-4 flex items-center justify-between py-4">
         <h1 className="text-2xl font-bold">
           <Link to="/">GuThanhLich</Link>
         </h1>

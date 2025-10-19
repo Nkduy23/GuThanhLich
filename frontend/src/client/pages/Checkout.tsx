@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import { Breadcrumb, generateBreadcrumb } from "@utils/breadcrumb";
 
 interface CartItem {
   _id: string;
@@ -10,8 +12,15 @@ interface CartItem {
   color: string;
 }
 
+interface AppliedVoucher {
+  code: string;
+  type: "fixed" | "percentage";
+  discountAmount: number;
+}
+
 const Checkout: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [appliedVoucher, setAppliedVoucher] = useState<AppliedVoucher | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [shippingInfo, setShippingInfo] = useState({
@@ -19,6 +28,7 @@ const Checkout: React.FC = () => {
     phone: "",
     address: "",
     note: "",
+    paymentMethod: "cod", // Default COD (add to state)
   });
 
   useEffect(() => {
@@ -40,11 +50,23 @@ const Checkout: React.FC = () => {
             quantity: item.quantity,
           }));
           setCartItems(mapped);
+
+          // ✅ Extract appliedVoucher from first item (saved in DB)
+          if (mapped.length > 0 && data.data.cart[0].appliedVoucher) {
+            const voucher = data.data.cart[0].appliedVoucher;
+            setAppliedVoucher({
+              code: voucher.code,
+              type: voucher.type,
+              discountAmount: voucher.discountAmount,
+            });
+          }
         } else {
           setCartItems([]);
+          setAppliedVoucher(null);
         }
       } catch (err) {
         console.error("Fetch cart error:", err);
+        toast.error("Lỗi tải giỏ hàng");
       } finally {
         setLoading(false);
       }
@@ -53,7 +75,12 @@ const Checkout: React.FC = () => {
     fetchCart();
   }, []);
 
-  const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  // ✅ Safe format function
+  const formatPrice = (price: number | undefined): string => (price || 0).toLocaleString("vi-VN");
+
+  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const discountAmount = appliedVoucher?.discountAmount || 0;
+  const finalTotal = subtotal - discountAmount;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -61,7 +88,14 @@ const Checkout: React.FC = () => {
   };
 
   const handleCheckout = async () => {
-    console.log("Checkout:", { cartItems, shippingInfo, total });
+    console.log("Checkout:", {
+      cartItems,
+      shippingInfo,
+      subtotal,
+      discountAmount,
+      finalTotal,
+      voucher: appliedVoucher,
+    });
     alert("Đặt hàng thành công (fake)!");
   };
 
@@ -74,12 +108,15 @@ const Checkout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-2 text-gray-900">Thanh Toán</h1>
-        <p className="text-gray-600 mb-8">({cartItems.length} sản phẩm)</p>
+    <div className="min-h-screen bg-gray-50 my-4">
+      <div className="mx-auto max-w-7xl px-4">
+        <Breadcrumb items={generateBreadcrumb([{ name: "Thanh Toán", href: "/checkout" }])} />
+        <div className="flex gap-6 items-center mb-4">
+          <h1 className="text-3xl font-bold mb-2 text-gray-900">Thanh Toán</h1>
+          <p className="text-gray-600">({cartItems.length} sản phẩm)</p>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
           {/* Left Column - Shipping Info */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow p-6">
@@ -133,6 +170,48 @@ const Checkout: React.FC = () => {
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   ></textarea>
                 </div>
+
+                {/* Phương thức thanh toán */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phương thức thanh toán
+                  </label>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cod"
+                        checked={shippingInfo.paymentMethod === "cod"}
+                        onChange={handleChange}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span>Thanh toán khi nhận hàng (COD)</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="bank"
+                        checked={shippingInfo.paymentMethod === "bank"}
+                        onChange={handleChange}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span>Chuyển khoản ngân hàng</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="momo"
+                        checked={shippingInfo.paymentMethod === "momo"}
+                        onChange={handleChange}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span>Ví MoMo</span>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -146,7 +225,10 @@ const Checkout: React.FC = () => {
               ) : (
                 <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
                   {cartItems.map((item) => (
-                    <div key={item._id} className="flex gap-3 pb-4 border-b last:border-b-0">
+                    <div
+                      key={item._id}
+                      className="flex gap-3 pb-4 border-b border-gray-200 last:border-b-0"
+                    >
                       <img
                         src={item.image}
                         alt={item.name}
@@ -160,30 +242,36 @@ const Checkout: React.FC = () => {
                           {item.color} | Size {item.size}
                         </p>
                         <p className="text-xs text-gray-700 mt-1">
-                          {item.quantity} x {item.price.toLocaleString("vi-VN")} ₫
+                          {item.quantity} x {formatPrice(item.price)} ₫
                         </p>
                       </div>
                       <p className="font-semibold text-gray-900 text-sm flex-shrink-0">
-                        {(item.price * item.quantity).toLocaleString("vi-VN")} ₫
+                        {formatPrice(item.price * item.quantity)} ₫
                       </p>
                     </div>
                   ))}
                 </div>
               )}
 
-              <div className="border-t pt-4 space-y-3">
+              <div className="border-t border-gray-400 pt-4 space-y-3">
                 <div className="flex justify-between text-gray-700">
                   <span>Tạm tính:</span>
-                  <span className="font-medium">{total.toLocaleString("vi-VN")} ₫</span>
+                  <span className="font-medium">{formatPrice(subtotal)} ₫</span>
                 </div>
+                {appliedVoucher && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Giảm giá ({appliedVoucher.code}):</span>
+                    <span className="font-medium">-{formatPrice(discountAmount)} ₫</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-gray-700">
                   <span>Phí vận chuyển:</span>
                   <span className="font-medium text-green-600">Miễn phí</span>
                 </div>
-                <div className="border-t pt-3 flex justify-between items-center">
+                <div className="border-t border-gray-500 pt-3 flex justify-between items-center">
                   <span className="text-lg font-semibold text-gray-900">Tổng cộng:</span>
                   <span className="text-2xl font-bold text-red-600">
-                    {total.toLocaleString("vi-VN")} ₫
+                    {formatPrice(finalTotal)} ₫
                   </span>
                 </div>
               </div>

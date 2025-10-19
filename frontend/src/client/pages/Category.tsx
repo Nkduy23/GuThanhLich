@@ -106,7 +106,7 @@ const CategoryPage: React.FC = () => {
   if (!category) return <p className="text-center mt-10">Không tìm thấy danh mục này.</p>;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 p-6 container">
+    <main className="mx-auto max-w-7xl px-4 p-6 container">
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold uppercase mb-2">{category.title || category.name}</h1>

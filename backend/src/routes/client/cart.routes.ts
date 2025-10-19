@@ -5,24 +5,31 @@ import {
   getCart,
   updateCartItem,
   removeCartItem,
+  removeAllItems,
   mergerCart,
 } from "../../controllers/client/cart.controller";
+import {
+  getAvailableVouchersHandler,
+  applyVoucherHandler,
+  removeVoucherHandler,
+} from "../../controllers/client/voucher.controller";
 
 const router = Router();
 
-// Get cart
 router.get("/", verifyTokenMiddleware, getCart);
 
-// Add item
 router.post("/add", verifyTokenMiddleware, addToCart);
 
-// Update quantity/variant/size
-router.put("/:id", verifyTokenMiddleware, updateCartItem); // Giữ :id, controller dùng req.params.id as cartItemId
+router.delete("/remove-all", verifyTokenMiddleware, removeAllItems);
 
-// Remove item
-router.delete("/:id", verifyTokenMiddleware, removeCartItem); // Giữ :id
+router.put("/:id", verifyTokenMiddleware, updateCartItem);
 
-// Merge cart
+router.delete("/:id", verifyTokenMiddleware, removeCartItem);
+
 router.post("/merge", verifyTokenMiddleware, mergerCart);
+
+router.get("/vouchers", verifyTokenMiddleware, getAvailableVouchersHandler);
+router.post("/apply-voucher", verifyTokenMiddleware, applyVoucherHandler);
+router.post("/remove-voucher", verifyTokenMiddleware, removeVoucherHandler);
 
 export default router;

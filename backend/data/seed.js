@@ -76,7 +76,11 @@ async function seedDatabase() {
 
       // Insert lại (hoặc update)
       for (let cate of categories) {
-        const result = await categoriesCol.updateOne({ slug: cate.slug }, { $set: { ...cate } }, { upsert: true });
+        const result = await categoriesCol.updateOne(
+          { slug: cate.slug },
+          { $set: { ...cate } },
+          { upsert: true }
+        );
       }
 
       const insertedCategories = await categoriesCol.find().toArray();
@@ -85,7 +89,10 @@ async function seedDatabase() {
       // Cập nhật parentId
       for (let cate of categories) {
         if (cate.parentSlug) {
-          await categoriesCol.updateOne({ slug: cate.slug }, { $set: { parentId: slugToId[cate.parentSlug] } });
+          await categoriesCol.updateOne(
+            { slug: cate.slug },
+            { $set: { parentId: slugToId[cate.parentSlug] } }
+          );
         }
       }
 
@@ -94,7 +101,9 @@ async function seedDatabase() {
       const brands = JSON5.parse(readFileSync("./brands.json5", "utf-8"));
       const brandsCol = db.collection("brands");
       const insertedBrands = await brandsCol.find().toArray();
-      const brandSlugToId = Object.fromEntries(insertedBrands.map((brand) => [brand.slug, brand._id]));
+      const brandSlugToId = Object.fromEntries(
+        insertedBrands.map((brand) => [brand.slug, brand._id])
+      );
 
       // --- Seed products ---
       await seedCollection(db, "products", "./products.json5");
@@ -163,7 +172,10 @@ async function seedDatabase() {
       for (const [productId, variantIds] of Object.entries(groupedByProduct)) {
         // Lấy variant đầu tiên làm default
         const defaultVariantId = variantIds[0];
-        await productsCol.updateOne({ _id: new ObjectId(productId) }, { $set: { defaultVariantId } });
+        await productsCol.updateOne(
+          { _id: new ObjectId(productId) },
+          { $set: { defaultVariantId } }
+        );
       }
 
       // --- Seed specs ---
@@ -203,7 +215,15 @@ async function seedDatabase() {
       await db.collection("reviews").insertMany(updatedReviews);
 
       // --- Seed other collections ---
-      const collections = ["users", "useraddresses", "cartitems", "orders", "orderdetails", "blogs"];
+      const collections = [
+        "users",
+        "useraddresses",
+        "cartitems",
+        "orders",
+        "orderdetails",
+        "blogs",
+        "vouchers",
+      ];
       await Promise.all(collections.map((col) => seedCollection(db, col, `./${col}.json5`)));
 
       await session.commitTransaction();
