@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "@context/auth/useAuth";
+import { useAuth } from "@/context/auth/useAuth";
 
 const ProtectedAdminRoute: React.FC = () => {
   const { isAuthenticated, role } = useAuth();

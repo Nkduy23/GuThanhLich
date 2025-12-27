@@ -1,20 +1,21 @@
 import { Route, Routes } from "react-router-dom";
 import { lazy } from "react";
-import MainLayout from "@client/layouts/MainLayout";
+import MainLayout from "@/features/layouts/MainLayout";
 import ProtectedRoute from "./ProtectedRoute";
-import NotFoundPage from "@client/pages/NotFound";
+import NotFoundPage from "@/pages/NotFound";
 
-const Slider = lazy(() => import("../client/components/common/Slider"));
-const Home = lazy(() => import("../client/pages/Home"));
-const LoginPage = lazy(() => import("../client/pages/Login"));
-const ProfilePage = lazy(() => import("../client/pages/Profile"));
-const RegisterPage = lazy(() => import("../client/pages/Register"));
-const ForgotPage = lazy(() => import("../client/pages/Forgot"));
-const ResetPasswordPage = lazy(() => import("../client/pages/ResetPassword"));
-const CartPage = lazy(() => import("../client/pages/Cart"));
-const CategoryPage = lazy(() => import("../client/pages/Category"));
-const ProductDetail = lazy(() => import("../client/pages/ProductDetail"));
-const Checkout = lazy(() => import("../client/pages/Checkout"));
+const Slider = lazy(() => import("@/components/common/Slider"));
+const Home = lazy(() => import("@/features/home/page/Home"));
+const LoginPage = lazy(() => import("@/features/auth/pages/Login"));
+const ProfilePage = lazy(() => import("@/features/profile/pages/Profile"));
+const RegisterPage = lazy(() => import("@/features/auth/pages/Register"));
+const ForgotPage = lazy(() => import("@/features/auth/pages/Forgot"));
+const ResetPasswordPage = lazy(() => import("@/features/auth/pages/ResetPassword"));
+const CartPage = lazy(() => import("@/features/cart/pages/Cart"));
+const CategoryPage = lazy(() => import("@/features/product/pages/Category"));
+const ProductDetail = lazy(() => import("@/features/product/pages/ProductDetail"));
+const Checkout = lazy(() => import("@/features/cart/pages/Checkout"));
+const Thanks = lazy(() => import("@/pages/Thanks"));
 
 const ClientRoutes: React.FC = () => {
   return (
@@ -41,6 +42,8 @@ const ClientRoutes: React.FC = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/checkout" element={<Checkout />} />
         </Route>
+
+        <Route path="/order-success" element={<Thanks />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Route>

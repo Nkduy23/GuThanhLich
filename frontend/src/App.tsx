@@ -2,10 +2,10 @@ import { useEffect, useState, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ClientRoutes from "./routes/ClientRoutes";
 import AdminRoutes from "./routes/AdminRoutes";
-import ScrollToTop from "./client/components/common/ScrollToTop";
-import LoadingOverlay from "./client/components/common/LoadingOverlay";
-import { AuthProvider } from "@context/auth/AuthProvider";
-import { CartProvider } from "@context/cart/CartProvider";
+import ScrollToTop from "@/components/common/ScrollToTop";
+import LoadingOverlay from "@/components/common/LoadingOverlay";
+import { AuthProvider } from "@/context/auth/AuthProvider";
+import { CartProvider } from "@/context/cart/CartProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

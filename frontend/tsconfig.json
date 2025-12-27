@@ -16,12 +16,7 @@
 
     "baseUrl": ".",
     "paths": {
-      "@client/*": ["src/client/*"],
-      "@admin/*": ["src/admin/*"],
-      "@context/*": ["src/context/*"],
-      "@hooks/*": ["src/hooks/*"],
-      "@utils/*": ["src/utils/*"],
-      "@api/*": ["src/api/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src"]

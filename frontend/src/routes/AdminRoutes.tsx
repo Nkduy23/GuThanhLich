@@ -1,14 +1,15 @@
 import { Route, Routes } from "react-router-dom";
-import AdminLayout from "../admin/layouts/AdminLayout";
+import AdminLayout from "@/features/admin/layouts/AdminLayout";
 import ProtectedAdminRoute from "./ProtectedAdminRoute";
 import { lazy } from "react";
 
-const DashboardPage = lazy(() => import("../admin/pages/Dashboard"));
-const UsersPage = lazy(() => import("../admin/pages/Users"));
-const ProductsPage = lazy(() => import("../admin/pages/products/Products"));
-const ProductFormPage = lazy(() => import("../admin/pages/products/ProductForm"));
-const CategoriesPage = lazy(() => import("../admin/pages/categories/Categories"));
-const CategoryFormPage = lazy(() => import("../admin/pages/categories/CategoryForm"));
+const DashboardPage = lazy(() => import("@/features/admin/dashboard/Dashboard"));
+const UsersPage = lazy(() => import("@/features/admin/users/Users"));
+const ProductsPage = lazy(() => import("@/features/admin/products/pages/Products"));
+const OrderPage = lazy(() => import("@/features/admin/orders/Order"));
+const ProductFormPage = lazy(() => import("@/features/admin/products/components/ProductForm"));
+const CategoriesPage = lazy(() => import("@/features/admin/categories/pages/Categories"));
+const CategoryFormPage = lazy(() => import("@/features/admin/categories/components/CategoryForm"));
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -24,6 +25,8 @@ const AdminRoutes: React.FC = () => {
             <Route path="categories" element={<CategoriesPage />}></Route>
             <Route path="categories/create" element={<CategoryFormPage />} />
             <Route path="categories/edit/:id" element={<CategoryFormPage />} />
+            <Route path="orders" element={<OrderPage />} />
+            <Route path="orders/:id" element={<OrderPage />} />
           </Route>
         </Route>
       </Routes>

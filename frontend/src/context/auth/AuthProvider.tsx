@@ -1,7 +1,7 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { AuthContext } from "./AuthContext";
-import { apiRequest } from "@api/fetcher";
-import { ENDPOINTS } from "@api/endpoints";
+import { apiRequest } from "@/api/fetcher";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [role, setRole] = useState<string | null>(null);

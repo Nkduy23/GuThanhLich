@@ -1,9 +1,9 @@
 import { useState, useCallback, useMemo, type ReactNode } from "react";
 import { toast } from "react-toastify";
-import { apiRequest } from "@api/fetcher";
-import { ENDPOINTS } from "@api/endpoints";
+import { apiRequest } from "@/api/fetcher";
+import { ENDPOINTS } from "@/api/endpoints";
 import { CartContext } from "./CartContext";
-import { useAuth } from "@context/auth/useAuth";
+import { useAuth } from "@/context/auth/useAuth";
 import type {
   Cart_Item,
   LocalSummary,
@@ -11,7 +11,7 @@ import type {
   ProductIds,
   Product,
   ProductVariant,
-} from "@client/types";
+} from "@/features/types";
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated } = useAuth();
