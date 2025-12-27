@@ -1,4 +1,3 @@
-// src/components/layout/SearchBar.tsx
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { memo } from "react";

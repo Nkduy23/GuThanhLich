@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Category } from "../../../types";
-import { buildCategoryTree } from "../../../utils/categoryTree";
+import type { Category } from "@/types";
+import { buildCategoryTree } from "@/utils/categoryTree";
 import CategoryItem from "../components/CategoryTree";
 
 const Categories: React.FC = () => {

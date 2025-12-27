@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, type ReactNode } from "react";
+import { useState, useCallback, useMemo, type ReactNode, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { apiRequest } from "@/api/fetcher";
 import { ENDPOINTS } from "@/api/endpoints";
@@ -23,6 +23,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartCount, setCartCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [updatingIds, setUpdatingIds] = useState(new Set<string>());
+  const updateTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const toastIdsRef = useRef<Map<string, string | number>>(new Map());
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const local = JSON.parse(localStorage.getItem("cart") || "[]");
+      const quickCount = local.reduce((sum: number, it: any) => sum + (it.quantity || 0), 0);
+      setCartCount(quickCount);
+    }
+  }, [isAuthenticated]);
 
   const calculateTotal = useCallback(
     (items: Cart_Item[]) =>
@@ -331,17 +341,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const itemIndex = cartItems.findIndex((i) => i._id === id);
-
       if (itemIndex === -1) return;
 
       // Lưu state cũ để revert nếu cần
       const oldItems = [...cartItems];
 
-      // Add to updatingIds cho granular loading (không dùng global loading)
+      // Add to updatingIds cho granular loading
       setUpdatingIds((prev) => new Set([...prev, id]));
 
-      // OPTIMISTIC: Cập nhật UI ngay lập tức (không chờ API)
-      // Cũng update total_price cho item để total memoized update mượt
+      // OPTIMISTIC: Cập nhật UI ngay lập tức
       setCartItems((prev) => {
         const newItems = [...prev];
         const updatedItem = { ...newItems[itemIndex], quantity };
@@ -351,11 +359,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         return newItems;
       });
 
-      // Xử lý async ở background
-      (async () => {
+      // Clear timer cũ nếu có (debounce)
+      const existingTimer = updateTimersRef.current.get(id);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+      }
+
+      // Dismiss toast cũ nếu có
+      const existingToastId = toastIdsRef.current.get(id);
+      if (existingToastId) {
+        toast.dismiss(existingToastId);
+      }
+
+      // Debounce: Chỉ gọi API sau 500ms user ngừng click
+      const timer = setTimeout(async () => {
         try {
           if (!isAuthenticated) {
-            // Local mode: Cập nhật local storage ngay
+            // Local mode: Cập nhật local storage
             const local = JSON.parse(localStorage.getItem("cart") || "[]");
             const current = cartItems[itemIndex];
             const lIndex = local.findIndex(
@@ -367,13 +387,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
             if (lIndex > -1) {
               local[lIndex].quantity = quantity;
-              // Guard: Nếu unit_price undefined ở local, set default (nhưng thường đã có từ addToCart)
               if (local[lIndex].unit_price === undefined) {
                 local[lIndex].unit_price = 0;
               }
               localStorage.setItem("cart", JSON.stringify(local));
             }
-            toast.success("Cập nhật số lượng thành công");
+
+            // Lưu toast ID để có thể dismiss sau này
+            const toastId = toast.success("Đã cập nhật số lượng");
+            toastIdsRef.current.set(id, toastId);
+
+            // Clear toast ID sau 3s
+            setTimeout(() => toastIdsRef.current.delete(id), 3000);
             return;
           }
 
@@ -387,7 +412,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           );
 
           if (!res.success) {
-            // Revert optimistic update nếu server lỗi (ví dụ: hết hàng)
+            // Revert optimistic update
             setCartItems((prev) => {
               const reverted = [...prev];
               const oldItem = { ...oldItems[itemIndex] };
@@ -396,29 +421,56 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
               reverted[itemIndex] = oldItem;
               return reverted;
             });
-            toast.error(res.message || "Cập nhật thất bại");
+
+            const toastId = toast.error(res.message || "Cập nhật thất bại");
+            toastIdsRef.current.set(id, toastId);
+            setTimeout(() => toastIdsRef.current.delete(id), 3000);
             return;
           }
 
-          // Nếu server trả về price mới hoặc stock, bạn có thể update item từ res.data nếu API hỗ trợ
-          toast.success("Cập nhật số lượng thành công");
+          const toastId = toast.success("Đã cập nhật số lượng");
+          toastIdsRef.current.set(id, toastId);
+          setTimeout(() => toastIdsRef.current.delete(id), 3000);
         } catch (err) {
           // Revert nếu lỗi network
           setCartItems(oldItems);
-          toast.error("Cập nhật số lượng thất bại, vui lòng thử lại.");
+
+          const toastId = toast.error("Cập nhật thất bại, vui lòng thử lại");
+          toastIdsRef.current.set(id, toastId);
+          setTimeout(() => toastIdsRef.current.delete(id), 3000);
+
           console.error("updateQuantity error", err);
         } finally {
-          // Remove from updatingIds
+          // Remove from updatingIds và cleanup
           setUpdatingIds((prev) => {
             const newSet = new Set(prev);
             newSet.delete(id);
             return newSet;
           });
+          updateTimersRef.current.delete(id);
         }
-      })();
+      }, 500); // Debounce 500ms
+
+      updateTimersRef.current.set(id, timer);
     },
     [isAuthenticated, cartItems, removeItem]
   );
+
+  // Cleanup khi component unmount
+  useEffect(() => {
+    const timers = updateTimersRef.current;
+    const toasts = toastIdsRef.current;
+
+    return () => {
+      // Clear all timers
+      timers.forEach((timer) => clearTimeout(timer));
+      timers.clear();
+
+      // Dismiss all toasts
+      toasts.forEach((toastId) => toast.dismiss(toastId));
+      toasts.clear();
+    };
+  }, []);
 
   const updateVariant = useCallback(
     async (id: string, variantId: string, size: string, quantity?: number) => {
@@ -530,7 +582,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCartItems([]);
     setTotal(0);
     setCartCount(0);
-    toast.success("Đã xóa toàn bộ giỏ hàng");
 
     try {
       if (!isAuthenticated) {

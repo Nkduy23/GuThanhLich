@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { apiRequest } from "@/api/fetcher";
 import { ENDPOINTS } from "@/api/endpoints";
 import { toast } from "react-toastify";
@@ -36,6 +36,11 @@ const ProductDetail: React.FC = () => {
 
   const { addToCart } = useCart();
 
+  // Refs cho debounce và prevent multiple clicks
+  const addToCartTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastToastIdRef = useRef<string | number | null>(null);
+  const isAddingRef = useRef(false); // Flag để prevent spam clicks
+
   const formatCurrency = (price: number) => `${price.toLocaleString("vi-VN")} VNĐ`;
 
   useEffect(() => {
@@ -59,6 +64,7 @@ const ProductDetail: React.FC = () => {
     };
     if (slug) fetchData();
   }, [slug]);
+
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
   const breadcrumbItems = useMemo(() => {
@@ -96,66 +102,124 @@ const ProductDetail: React.FC = () => {
     }
   }, [selectedVariant, initialized]);
 
-  if (!product)
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+  // Cleanup khi unmount
+  useEffect(() => {
+    return () => {
+      if (addToCartTimerRef.current) {
+        clearTimeout(addToCartTimerRef.current);
+      }
+      if (lastToastIdRef.current) {
+        toast.dismiss(lastToastIdRef.current);
+      }
+    };
+  }, []);
 
-  const discountedPrice =
-    product.sale && product.sale > 0 ? product.price - (product.price * product.sale) / 100 : null;
+  // Calculate discountedPrice trước (cần cho useCallback)
+  const discountedPrice = useMemo(() => {
+    if (!product) return null;
+    return product.sale && product.sale > 0
+      ? product.price - (product.price * product.sale) / 100
+      : null;
+  }, [product]);
 
-  const handleAddToCart = async () => {
+  // Optimized handleAddToCart với debounce và prevent multiple clicks
+  const handleAddToCart = useCallback(async () => {
+    // Check product exists
+    if (!product) {
+      console.warn("⚠️ No product");
+      return;
+    }
+    // Prevent spam clicks - nếu đang xử lý thì ignore
+    if (isAddingRef.current) {
+      console.log("⏳ Already processing, ignoring click");
+      return;
+    }
+
+    // Validation checks
     if (!selectedSize) {
       console.warn("⚠️ No selectedSize");
-      toast.warn("Vui lòng chọn kích thước");
+      const toastId = toast.warn("Vui lòng chọn kích thước");
+      lastToastIdRef.current = toastId;
       return;
     }
 
     if (quantity < 1) {
       console.warn("⚠️ Invalid quantity:", quantity);
-      toast.warn("Số lượng không hợp lý");
+      const toastId = toast.warn("Số lượng không hợp lý");
+      lastToastIdRef.current = toastId;
       return;
     }
 
     if (!selectedVariant) {
       console.warn("⚠️ No selectedVariant");
-      toast.warn("Sản phẩm đang bị lỗi. Vui lòng báo admin để được hỗ trợ");
+      const toastId = toast.warn("Sản phẩm đang bị lỗi. Vui lòng báo admin để được hỗ trợ");
+      lastToastIdRef.current = toastId;
       return;
     }
 
-    setLoading(true);
-
-    const newItem: Cart_Item = {
-      _id: selectedVariant._id,
-      productId: selectedVariant?.productId ?? "",
-      variantId: selectedVariant._id,
-      name: product.name,
-      price: discountedPrice ?? product?.price,
-      image: mainImage,
-      color: selectedVariant.color,
-      size: selectedSize,
-      quantity,
-      availableColors: [],
-      availableSizes: variants
-        .filter((v) => v.color === selectedVariant.color)
-        .flatMap((v) => v.sizes.map((s) => s.size)),
-      unit_price: discountedPrice ?? product?.price,
-      total_price: (discountedPrice ?? product?.price) * quantity,
-    };
-
-    try {
-      await addToCart(newItem);
-      toast.success("Đã thêm sản phẩm vào giỏ hàng");
-      setQuantity(1);
-    } catch (error) {
-      console.error("[handleAddToCart] Error adding to cart:", error);
-      toast.error("Không thể thêm sản phẩm vào giỏ hàng");
-    } finally {
-      setLoading(false);
+    // Dismiss previous toast if exists
+    if (lastToastIdRef.current) {
+      toast.dismiss(lastToastIdRef.current);
     }
-  };
+
+    // Clear previous timer if exists (debounce)
+    if (addToCartTimerRef.current) {
+      clearTimeout(addToCartTimerRef.current);
+    }
+
+    // Set loading immediately for UI feedback
+    setLoading(true);
+    isAddingRef.current = true;
+
+    // Debounce: delay actual API call
+    addToCartTimerRef.current = setTimeout(async () => {
+      const newItem: Cart_Item = {
+        _id: selectedVariant._id,
+        productId: selectedVariant?.productId ?? "",
+        variantId: selectedVariant._id,
+        name: product.name,
+        price: discountedPrice ?? product?.price,
+        image: mainImage,
+        color: selectedVariant.color,
+        size: selectedSize,
+        quantity,
+        availableColors: [],
+        availableSizes: variants
+          .filter((v) => v.color === selectedVariant.color)
+          .flatMap((v) => v.sizes.map((s) => s.size)),
+        unit_price: discountedPrice ?? product?.price,
+        total_price: (discountedPrice ?? product?.price) * quantity,
+      };
+
+      try {
+        await addToCart(newItem);
+        const toastId = toast.success("Đã thêm sản phẩm vào giỏ hàng");
+        lastToastIdRef.current = toastId;
+        setQuantity(1);
+      } catch (error) {
+        console.error("[handleAddToCart] Error adding to cart:", error);
+        const toastId = toast.error("Không thể thêm sản phẩm vào giỏ hàng");
+        lastToastIdRef.current = toastId;
+      } finally {
+        setLoading(false);
+        isAddingRef.current = false;
+
+        // Auto-clear toast ID after 3s
+        setTimeout(() => {
+          lastToastIdRef.current = null;
+        }, 3000);
+      }
+    }, 300); // 300ms debounce - ngắn hơn updateQuantity vì đây là action ít spam hơn
+  }, [
+    selectedSize,
+    quantity,
+    selectedVariant,
+    product,
+    discountedPrice,
+    mainImage,
+    variants,
+    addToCart,
+  ]);
 
   const handleChangeVariant = (variantId: string) => {
     const v = variants.find((v) => v._id === variantId) || null;
@@ -169,6 +233,14 @@ const ProductDetail: React.FC = () => {
       setDisplayName(product?.name || "");
     }
   };
+
+  // Early return SAU tất cả hooks
+  if (!product)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">

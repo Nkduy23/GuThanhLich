@@ -1,5 +1,3 @@
-// components/profile/ProfileMenu.tsx (updated)
-import { useState } from "react";
 import { User, MapPin, Package, Settings, LogOut } from "lucide-react";
 import { useAuth } from "@/context/auth/useAuth";
 
@@ -16,7 +14,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ activeTab, onTabChange }) => 
     { key: "address", label: "Địa chỉ", icon: <MapPin size={18} /> },
     { key: "orders", label: "Đơn hàng", icon: <Package size={18} /> },
     { key: "settings", label: "Cài đặt", icon: <Settings size={18} /> },
-    { key: "logout", label: "Đăng xuất", icon: <LogOut size={18} /> },
+    { key: "logout", label: "Đăng xuất", icon: <LogOut className="text-red-500" size={18} /> },
   ];
 
   const handleClick = (key: string) => {
@@ -28,7 +26,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ activeTab, onTabChange }) => 
   };
 
   return (
-    <nav className="w-64 bg-white rounded-lg shadow-md p-4">
+    <nav className="w-full md:w-64 bg-white rounded-lg shadow-md p-4">
       <h2 className="text-lg font-bold text-gray-700 mb-4">Menu Cá Nhân</h2>
       <ul className="space-y-2">
         {menuItems.map((item) => (
@@ -36,7 +34,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ activeTab, onTabChange }) => 
             <button
               onClick={() => handleClick(item.key)}
               type="button"
-              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-lg transition 
+              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-lg transition cursor-pointer
               ${
                 activeTab === item.key
                   ? "bg-blue-600 text-white"

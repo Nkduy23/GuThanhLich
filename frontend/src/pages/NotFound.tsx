@@ -4,7 +4,7 @@ const NotFoundPage: React.FC = () => {
       <div className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-lg max-w-md w-full">
         <img className="w-60" src={"/icons/not-found-error-alert-svgrepo-com.svg"} alt="" />
         <p className="text-lg text-gray-600 mb-6">
-          Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.
+          Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đang được phát triển.
         </p>
         <a
           href="/"

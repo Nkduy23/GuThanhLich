@@ -15,7 +15,7 @@ const CardProduct: React.FC<CardProductProps> = ({ product }) => {
       <div className="relative max-w-sm rounded-lg overflow-hidden transform transition duration-300 hover:scale-105">
         <img
           className="w-full max-h-80 object-cover"
-          src={product.defaultVariantId?.images?.[0] || product.image}
+          src={product.defaultVariantId?.images?.[0] || product.images?.[0]}
           alt={product.name}
         />
 

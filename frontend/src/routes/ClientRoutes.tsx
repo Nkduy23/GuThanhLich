@@ -16,8 +16,10 @@ const CategoryPage = lazy(() => import("@/features/product/pages/Category"));
 const ProductDetail = lazy(() => import("@/features/product/pages/ProductDetail"));
 const Checkout = lazy(() => import("@/features/cart/pages/Checkout"));
 const Thanks = lazy(() => import("@/pages/Thanks"));
+import { useCartSync } from "@/context/cart/useCartSync";
 
 const ClientRoutes: React.FC = () => {
+  useCartSync();
   return (
     <Routes>
       <Route element={<MainLayout />}>

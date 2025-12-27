@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Category } from "../../../types";
+import type { Category } from "@/types";
 
 const CategoryItem: React.FC<{
   cat: Category;
@@ -77,7 +77,7 @@ const CategoryItem: React.FC<{
       {expanded && cat.children.length > 0 && (
         <div className="bg-gray-50 border-t border-gray-200">
           <div className="ml-8 py-3 pr-3 space-y-2 border-l-2 border-blue-300">
-            {cat.children.map((child) => (
+            {cat.children.map((child: Category) => (
               <CategoryItem key={child._id} cat={child} onEdit={onEdit} onDelete={onDelete} />
             ))}
           </div>

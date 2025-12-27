@@ -1,4 +1,3 @@
-// src/components/layout/HeaderLogo.tsx
 import { Link } from "react-router-dom";
 
 const HeaderLogo = () => (

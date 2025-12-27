@@ -56,7 +56,7 @@ const Thanks = () => {
           <Button
             variant="outline"
             className="px-6 py-2 rounded-xl border-gray-300 text-gray-700 hover:bg-gray-100"
-            onClick={() => (window.location.href = "/orders")}
+            onClick={() => (window.location.href = "/profile")}
           >
             Xem đơn hàng
           </Button>

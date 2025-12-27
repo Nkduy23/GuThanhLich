@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { Category, Product } from "@admin/types";
+import type { Category, Product } from "@/features/admin/types";
 import { useNavigate } from "react-router-dom";
-import { getErrorMessage } from "../../../utils/errorHandler";
+import { getErrorMessage } from "@/utils/errorHandler";
 
 const ITEMS_PER_PAGE = 10;
 

@@ -50,14 +50,14 @@ const OrdersTab: React.FC<{ orders: Order[]; loading: boolean }> = ({ orders, lo
             <div key={order._id} className="border border-gray-200 rounded-lg overflow-hidden">
               {/* Order Header */}
               <div className="p-4 bg-gray-50 flex justify-between items-center">
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                   <Package size={20} className="text-gray-500" />
                   <div>
                     <p className="font-medium">Đơn hàng #{order._id.slice(-8).toUpperCase()}</p>
                     <p className="text-sm text-gray-500">{formatDate(order.createdAt)}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                   <div
                     className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
                       order.status

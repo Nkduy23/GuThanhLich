@@ -1,4 +1,3 @@
-// src/components/layout/MobileMenuButton.tsx
 import { Menu } from "lucide-react";
 
 type Props = {

@@ -68,7 +68,7 @@ const AddressTab: React.FC<AddressTabProps> = ({ addresses, onAddAddress, onUpda
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Địa chỉ của bạn</h2>
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 cursor-pointer"
           onClick={onAddAddress}
         >
           Thêm địa chỉ mới
@@ -134,7 +134,7 @@ const AddressTab: React.FC<AddressTabProps> = ({ addresses, onAddAddress, onUpda
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => handleEdit(address)}
-                      className="text-blue-600 text-sm hover:underline"
+                      className="text-blue-600 text-sm hover:underline cursor-pointer"
                     >
                       Sửa
                     </button>

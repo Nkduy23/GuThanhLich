@@ -1,4 +1,3 @@
-// src/components/layout/Header.tsx
 import { useState, useEffect } from "react";
 import { apiRequest } from "@/api/fetcher";
 import { ENDPOINTS } from "@/api/endpoints";
@@ -39,16 +38,12 @@ const Header = () => {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* LEFT: Mobile Menu Button + Logo */}
           <div className="flex items-center gap-4">
             <MobileMenuButton onClick={() => setMobileMenuOpen(true)} />
-            {/* Placeholder để cân bằng khi logo căn giữa trên tablet (tùy chọn) */}
-            <div className="w-10 lg:hidden" />
-            <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0">
-              <HeaderLogo />
-            </div>
+            <HeaderLogo />
           </div>
 
           {/* CENTER: Desktop Navigation - CHỈ HIỆN TỪ 1024px (lg) TRỞ LÊN */}

@@ -68,7 +68,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300 disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300 disabled:opacity-50 cursor-pointer"
         >
           {loading ? "Đang xử lý..." : "Đăng Nhập"}
         </button>
@@ -78,7 +78,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       <div className="mt-4 text-center">
         <button
           onClick={handleGoogleLogin}
-          className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition duration-300 flex items-center justify-center gap-2"
+          className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition duration-300 flex items-center justify-center gap-2 cursor-pointer"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -1,4 +1,3 @@
-// src/components/layout/HeaderActions.tsx
 import { Link } from "react-router-dom";
 import { User, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/context/auth/useAuth";
@@ -12,10 +11,10 @@ const HeaderActions = () => {
     <div className="flex items-center gap-2 lg:gap-4">
       <Link
         to={role ? "/profile" : "/login"}
-        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        className={`p-2 rounded-lg transition-colors ${role ? "bg-gray-100" : "hover:bg-gray-100"}`}
         aria-label={role ? "Profile" : "Login"}
       >
-        <User className="w-6 h-6 stroke-[1.5]" />
+        <User className={`w-6 h-6 stroke-[1.5] ${role ? "text-black" : "text-gray-600"}`} />
       </Link>
 
       <Link

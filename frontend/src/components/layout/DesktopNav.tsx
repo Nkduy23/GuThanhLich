@@ -1,68 +1,87 @@
-// src/components/layout/DesktopNav.tsx
 import { Link } from "react-router-dom";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { memo, useCallback } from "react";
 import type { Category } from "@/types/category";
 
 const DesktopNav = memo(({ categories }: { categories: Category[] }) => {
   const mainCategories = categories.filter((cat) => cat.parentSlug === null);
 
-  const getSubCategories = useCallback(
-    (parentSlug: string) => categories.filter((cat) => cat.parentSlug === parentSlug),
+  const getChildren = useCallback(
+    (parentSlug: string | null) => categories.filter((cat) => cat.parentSlug === parentSlug),
     [categories]
   );
 
-  const renderMegaMenu = (subs: Category[]) => (
-    <div className="absolute left-0 top-full mt-2 hidden group-hover:block w-auto min-w-[600px] bg-white shadow-xl rounded-lg p-6 z-50 border border-gray-100">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        {subs.map((sub) => (
-          <div key={sub.slug}>
-            <Link
-              to={`/category/${sub.slug}`}
-              className="font-semibold text-gray-900 hover:text-blue-600 transition-colors block mb-2"
-            >
-              {sub.name}
-            </Link>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  // Render một cột: tiêu đề cấp 2 + danh sách cấp 3
+  const renderMegaMenuColumn = (level2Cat: Category) => {
+    const level3Cats = getChildren(level2Cat.slug);
 
-  const renderDropdown = (subs: Category[]) => (
-    <div className="absolute left-0 top-full mt-2 hidden group-hover:block w-56 bg-white shadow-xl rounded-lg py-2 z-50 border border-gray-100">
-      {subs.map((sub) => (
+    return (
+      <div key={level2Cat.slug} className="flex gap-2 flex-col w-full">
         <Link
-          key={sub.slug}
-          to={`/category/${sub.slug}`}
-          className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+          to={`/category/${level2Cat.slug}`}
+          className="font-bold text-gray-900 hover:text-blue-600 block mb-4 text-base transition-colors"
         >
-          {sub.name}
-          <ChevronRight className="w-4 h-4" />
+          {level2Cat.name}
         </Link>
-      ))}
-    </div>
-  );
+        {level3Cats.length > 0 && (
+          <ul className="space-y-2">
+            {level3Cats.map((level3) => (
+              <li key={level3.slug}>
+                <Link
+                  to={`/category/${level3.slug}`}
+                  className="text-gray-600 hover:text-blue-600 text-sm block py-1 transition-colors"
+                >
+                  {level3.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  };
+
+  // Render toàn bộ mega menu cho một main category
+  const renderMegaMenu = (mainCat: Category) => {
+    const level2Cats = getChildren(mainCat.slug);
+    if (level2Cats.length === 0) return null;
+
+    // Tính số cột tối ưu dựa trên số lượng items
+    const columnCount = Math.min(level2Cats.length, 5); // Tối đa 5 cột
+    const gridClass = `grid gap-8`;
+    const gridStyle = {
+      gridTemplateColumns: `repeat(${columnCount}, minmax(180px, 1fr))`,
+    };
+
+    return (
+      <div className="absolute left-0 top-full bg-white shadow-2xl rounded-lg p-8 z-50 border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto">
+        <div className={gridClass} style={gridStyle}>
+          {level2Cats.map((level2) => renderMegaMenuColumn(level2))}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
+    <nav className="hidden lg:flex items-center space-x-8">
       {mainCategories.map((cat) => {
-        const subs = getSubCategories(cat.slug);
-        const isMegaMenu = ["ao", "quan", "phu-kien"].includes(cat.slug); // Tùy chỉnh theo slug thực tế
+        const hasChildren = getChildren(cat.slug).length > 0;
 
         return (
           <div key={cat.slug} className="group relative">
+            {/* Parent Link */}
             <Link
               to={`/category/${cat.slug}`}
-              className="flex items-center gap-1 px-3 py-2 text-sm lg:text-base text-gray-700 hover:text-blue-600 font-medium uppercase transition-colors rounded-lg hover:bg-gray-50"
+              className="flex items-center gap-1.5 px-3 py-2 text-base font-medium uppercase text-gray-700 hover:text-blue-600 transition-colors"
             >
               {cat.name}
-              {subs.length > 0 && (
-                <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform" />
+              {hasChildren && (
+                <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" />
               )}
             </Link>
 
-            {subs.length > 0 && (isMegaMenu ? renderMegaMenu(subs) : renderDropdown(subs))}
+            {/* Mega Menu - Chỉ hiện khi hover */}
+            {hasChildren && renderMegaMenu(cat)}
           </div>
         );
       })}
