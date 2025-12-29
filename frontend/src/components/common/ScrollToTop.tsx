@@ -5,7 +5,6 @@ const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    console.log("📍 Route changed:", pathname); // 👈 test log
     window.scrollTo(0, 0);
   }, [pathname]);
 

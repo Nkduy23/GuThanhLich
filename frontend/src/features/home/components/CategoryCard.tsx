@@ -1,4 +1,4 @@
-import type { parentCategories } from "@client/types";
+import type { parentCategories } from "@/features/types";
 import { Link } from "react-router-dom";
 
 interface CategoryCardProps {
