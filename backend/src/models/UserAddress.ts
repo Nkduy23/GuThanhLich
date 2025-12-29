@@ -2,6 +2,8 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUserAddress extends Document {
   userId: mongoose.Types.ObjectId;
+  name: string;
+  phone: string;
   address: string;
   city: string;
   country: string;
@@ -9,6 +11,8 @@ export interface IUserAddress extends Document {
 
 const UserAddressSchema: Schema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  name: { type: String, required: true },
+  phone: { type: String, required: true },
   address: { type: String, required: true },
   city: { type: String, required: true },
   country: { type: String, required: true },

@@ -8,7 +8,7 @@ import {
 
 const router = Router();
 
-router.get("/", getProduct); // Chưa sài
+router.get("/", getProduct);
 router.post("/batch", getBatch);
 router.get("/:slug", getProductDetail);
 router.get("/id/:id", getProductById);

@@ -54,8 +54,41 @@ export const getProductById = async (id: string) => {
 
 // 🟢 Tạo sản phẩm mới
 export const createProduct = async (data: any) => {
-  const product = new Product(data);
-  return product.save();
+  try {
+    // 1️⃣ Tạo product chính (loại bỏ sub-arrays)
+    const { productSpecifications, productHighlights, productVariants, ...productMainData } = data;
+    const product = new Product(productMainData);
+    await product.save();
+
+    // 2️⃣ Tạo sub-documents với productId
+    if (productSpecifications && productSpecifications.length > 0) {
+      await ProductSpec.insertMany(
+        productSpecifications.map((s: any) => ({ ...s, productId: product._id }))
+      );
+    }
+
+    if (productHighlights && productHighlights.length > 0) {
+      await ProductHighlight.insertMany(
+        productHighlights.map((h: any) => ({ ...h, productId: product._id }))
+      );
+    }
+
+    if (productVariants && productVariants.length > 0) {
+      const savedVariants = await ProductVariant.insertMany(
+        productVariants.map((v: any) => ({ ...v, productId: product._id }))
+      );
+      // Set defaultVariantId to first variant if exists
+      if (savedVariants.length > 0) {
+        product.defaultVariantId = savedVariants[0]._id;
+        await product.save();
+      }
+    }
+
+    // 3️⃣ Trả về full populated product
+    return await getProductById(product._id.toString());
+  } catch (err) {
+    throw err;
+  }
 };
 
 // 🟢 Cập nhật sản phẩm + các bảng liên quan
@@ -95,4 +128,23 @@ export const updateProduct = async (id: string, data: any) => {
 // 🟢 Xóa sản phẩm
 export const deleteProduct = async (id: string) => {
   return Product.findByIdAndDelete(id);
+};
+
+export const getProductStats = async () => {
+  const [totalProducts, activeProducts, lowStockProducts] = await Promise.all([
+    Product.countDocuments(),
+    Product.countDocuments({ is_active: true }),
+    ProductVariant.aggregate([
+      { $unwind: "$sizes" },
+      { $match: { "sizes.quantity": { $lt: 5 } } }, // Low stock < 5
+      { $group: { _id: "$productId" } },
+      { $count: "lowStockProducts" },
+    ]).then((res) => res[0]?.lowStockProducts || 0),
+  ]);
+
+  return {
+    totalProducts,
+    activeProducts,
+    lowStockProducts,
+  };
 };

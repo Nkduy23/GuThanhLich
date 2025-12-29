@@ -1,0 +1,13 @@
+[
+  {
+    _id: { $oid: "64f070c1a1e1a10000000001" },
+    userId: { $oid: "64f010c1a1e1a10000000001" },
+    addressId: { $oid: "64f020c1a1e1a10000000001" },
+    voucherId: { $oid: "64f030c1a1e1a10000000001" },
+    paymentMethod: "cash",
+    status: "pending",
+    subtotal: 0,
+    discount: 0,
+    grandTotal: 0,
+  },
+]

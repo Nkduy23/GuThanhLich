@@ -7,8 +7,6 @@
     maxDiscountValue: 100000,
     usageLimit: 200,
     usedCount: 0,
-    startDate: "2025-01-01T00:00:00Z",
-    endDate: "2025-12-31T23:59:59Z",
     isActive: true,
   },
   {
@@ -19,8 +17,6 @@
     maxDiscountValue: 150000,
     usageLimit: 50,
     usedCount: 0,
-    startDate: "2025-01-01T00:00:00Z",
-    endDate: "2025-12-31T23:59:59Z",
     isActive: true,
   },
   {
@@ -31,8 +27,6 @@
     maxDiscountValue: null,
     usageLimit: 300,
     usedCount: 0,
-    startDate: "2025-01-01T00:00:00Z",
-    endDate: "2025-12-31T23:59:59Z",
     isActive: true,
   },
 ]

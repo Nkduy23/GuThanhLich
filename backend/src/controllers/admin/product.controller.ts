@@ -1,4 +1,3 @@
-// admin/product.controller.ts
 import { Request, Response } from "express";
 import * as AdminProductService from "../../services/admin/product.service";
 
@@ -24,6 +23,7 @@ export const getProductById = async (req: Request, res: Response) => {
 };
 
 export const createProduct = async (req: Request, res: Response) => {
+  console.log(req.body);
   try {
     // Parse JSON body for product data
     let productData;
@@ -43,15 +43,30 @@ export const createProduct = async (req: Request, res: Response) => {
 
     // Distribute uploaded images to variants (simple: append to all variants or first, but here we'll append to the last variant for demo; adjust as needed)
     // For better UX, frontend should specify which variant each file belongs to, but for now, append all to the first variant
+    // Distribute uploaded images to variants (append to first variant)
+    // if (
+    //   productData.productVariants &&
+    //   productData.productVariants.length > 0 &&
+    //   uploadedFiles.length > 0
+    // ) {
+    //   productData.productVariants[0].images = [
+    //     ...(productData.productVariants[0].images || []),
+    //     ...uploadedFiles,
+    //   ];
+    // }
+
+    const uploadVariantIndex = productData.uploadVariantIndex || 0;
     if (
       productData.productVariants &&
-      productData.productVariants.length > 0 &&
+      productData.productVariants.length > uploadVariantIndex &&
       uploadedFiles.length > 0
     ) {
-      productData.productVariants[0].images = [
-        ...(productData.productVariants[0].images || []),
+      productData.productVariants[uploadVariantIndex].images = [
+        ...(productData.productVariants[uploadVariantIndex].images || []),
         ...uploadedFiles,
       ];
+      // Clean up the temp field
+      delete productData.uploadVariantIndex;
     }
 
     const product = await AdminProductService.createProduct(productData);
@@ -81,15 +96,29 @@ export const updateProduct = async (req: Request, res: Response) => {
     }
 
     // Distribute uploaded images to variants (append to first variant for demo)
+    // if (
+    //   productData.productVariants &&
+    //   productData.productVariants.length > 0 &&
+    //   uploadedFiles.length > 0
+    // ) {
+    //   productData.productVariants[0].images = [
+    //     ...(productData.productVariants[0].images || []),
+    //     ...uploadedFiles,
+    //   ];
+    // }
+
+    const uploadVariantIndex = productData.uploadVariantIndex || 0;
     if (
       productData.productVariants &&
-      productData.productVariants.length > 0 &&
+      productData.productVariants.length > uploadVariantIndex &&
       uploadedFiles.length > 0
     ) {
-      productData.productVariants[0].images = [
-        ...(productData.productVariants[0].images || []),
+      productData.productVariants[uploadVariantIndex].images = [
+        ...(productData.productVariants[uploadVariantIndex].images || []),
         ...uploadedFiles,
       ];
+      // Clean up the temp field
+      delete productData.uploadVariantIndex;
     }
 
     const product = await AdminProductService.updateProduct(req.params.id, productData);

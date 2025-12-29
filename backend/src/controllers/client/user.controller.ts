@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id; // 👈 lấy id từ middleware
+    const userId = (req as any).user.id;
 
     const user = await User.findById(userId).lean();
     const addresses = await UserAddress.find({ userId }).lean();

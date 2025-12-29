@@ -18,7 +18,9 @@ export const getCategoryBySlug = async (slug: string) => {
   const category = await Category.findOne({ slug }).lean();
   if (!category) return null;
 
-  const products = await Product.find({ categorySlug: slug })
+  const products = await Product.find({
+    $or: [{ categorySlug: slug }, { tags: slug }],
+  })
     .select("name price defaultVariantId sale slug categorySlug tags is_new")
     .populate({
       path: "defaultVariantId",

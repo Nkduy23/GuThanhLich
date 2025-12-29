@@ -1,7 +1,12 @@
+// client/checkout.routes.ts
 import { Router } from "express";
-import { getCheckout } from "../../controllers/client/checkout.controller";
+import { getCheckout, createOrder } from "../../controllers/client/checkout.controller";
+import { verifyTokenMiddleware } from "../../middlewares/verifyToken.middleware";
 
 const router = Router();
-router.get("/", getCheckout);
+
+router.get("/", verifyTokenMiddleware, getCheckout);
+
+router.post("/", verifyTokenMiddleware, createOrder);
 
 export default router;

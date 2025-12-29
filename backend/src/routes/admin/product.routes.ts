@@ -1,4 +1,3 @@
-// admin/product.routes.ts
 import { Router } from "express";
 import {
   getProducts,
@@ -42,7 +41,7 @@ const upload = multer({
 
 router.get("/", getProducts);
 router.get("/:id", getProductById);
-router.post("/", upload.array("variantImages", 20), createProduct); // Allow up to 20 images per request
+router.post("/", upload.array("variantImages", 20), createProduct);
 router.put("/:id", upload.array("variantImages", 20), updateProduct);
 router.delete("/:id", deleteProduct);
 

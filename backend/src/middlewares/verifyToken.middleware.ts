@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 export const verifyTokenMiddleware = (req: Request, res: Response, next: NextFunction) => {
   // console.log("Cookies:", req.cookies);
-  const token = req.cookies.token || req.cookies.Cookie_1; // chỉ nên dùng tạm khi test
+  const token = req.cookies.token || req.cookies.Cookie_1;
 
   if (!token) {
     return res.status(401).json({
@@ -15,7 +15,7 @@ export const verifyTokenMiddleware = (req: Request, res: Response, next: NextFun
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; role: string };
-    (req as any).user = decoded; // 👈 gắn vào req để controller dùng
+    (req as any).user = decoded;
     next();
   } catch (err) {
     return res.status(401).json({

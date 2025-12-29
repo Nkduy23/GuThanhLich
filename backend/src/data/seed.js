@@ -222,9 +222,33 @@ async function seedDatabase() {
         "orders",
         "orderdetails",
         "blogs",
-        "vouchers",
       ];
       await Promise.all(collections.map((col) => seedCollection(db, col, `./${col}.json5`)));
+
+      // --- Seed vouchers đặc biệt với ngày động ---
+      const vouchersRaw = JSON5.parse(readFileSync("./vouchers.json5", "utf-8"));
+
+      const now = new Date();
+      const startDate = now;
+
+      const endDate = new Date(now);
+      endDate.setMonth(endDate.getMonth() + 2);
+      endDate.setHours(23, 59, 59, 999);
+
+      const vouchersWithDates = vouchersRaw.map((voucher) => ({
+        ...voucher,
+        startDate,
+        endDate,
+      }));
+
+      const vouchersCol = db.collection("vouchers");
+      await vouchersCol.deleteMany({});
+      const insertResult = await vouchersCol.insertMany(vouchersWithDates);
+      console.log(
+        `Seeded ${insertResult.insertedCount} vouchers, hết hạn: ${endDate.toLocaleDateString(
+          "vi-VN"
+        )}`
+      );
 
       await session.commitTransaction();
       console.log("🎉 Database seeded successfully!");

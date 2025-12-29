@@ -15,20 +15,9 @@ export interface AddToCartInput {
 }
 
 export interface UpdateCartInput {
-  // New: Cho update
   variantId?: string;
   size?: string;
   quantity?: number;
-}
-
-interface LocalCartItem {
-  productId: string;
-  variantId: string;
-  size: string;
-  quantity: number;
-  price?: number;
-  name?: string;
-  image?: string;
 }
 
 export const validateSizeAvailability = async (
@@ -118,6 +107,7 @@ export const getCartItems = async (userId: string) => {
 
       const appliedVoucher = item.appliedVoucher
         ? {
+            _id: item.appliedVoucher._id,
             code: item.appliedVoucher.code,
             type: item.appliedVoucher.type,
             discountAmount: Number(item.appliedVoucher.discountAmount) || 0,
@@ -244,6 +234,11 @@ export const removeAllItemsService = async (userId: string) => {
   return await CartItem.deleteMany({ userId });
 };
 
+export const clearCart = async (userId: string) => {
+  const result = await removeAllItemsService(userId);
+  return { success: result.deletedCount > 0, message: "Cart cleared" };
+};
+
 /**
  * localItems: Array of { productId, variantId, size, quantity }
  */
@@ -319,4 +314,28 @@ export const getCartItemsService = async (userId: string) => {
   const items = await CartItem.find({ userId }).populate("productId").populate("variantId").lean();
   // Có thể tính total ở đây nếu cần
   return items;
+};
+
+export const getCartSummary = async (userId: string) => {
+  const cartData = await getCartItems(userId);
+  if (!cartData.success) {
+    return { success: false, items: [], subtotal: 0, discount: 0, total: 0, appliedVoucher: null };
+  }
+
+  const subtotal = cartData.items.reduce(
+    (acc: number, item: any) => acc + item.unit_price * item.quantity,
+    0
+  );
+  const appliedVoucher = cartData.items[0]?.appliedVoucher || null;
+  const discount = appliedVoucher?.discountAmount || 0;
+  const total = subtotal - discount;
+
+  return {
+    success: true,
+    items: cartData.items,
+    subtotal,
+    discount,
+    total,
+    appliedVoucher,
+  };
 };
